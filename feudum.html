@@ -72,7 +72,7 @@ body{background:#0e0804;background-image:radial-gradient(ellipse at 30% 20%,#2d1
 .board-top-bar{background:linear-gradient(90deg,#1a0f05,#2d1a08,#1a0f05);border-bottom:2px solid var(--gold);padding:7px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .turn-info{font-family:'Cinzel',serif;font-size:12px;color:var(--gold2);}
 .mode-badge{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;padding:2px 8px;border:1px solid var(--gold);border-radius:2px;color:var(--gold);opacity:0.7;}
-.board-scroll{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:8px;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;}
+.board-scroll{flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:8px;}
 
 /* ===================================================
    BOARD RECTANGLE LAYOUT
@@ -101,9 +101,11 @@ body{background:#0e0804;background-image:radial-gradient(ellipse at 30% 20%,#2d1
 .board-wrap{
   position:relative;
   display:grid;
-  grid-template-columns: 68px repeat(14, 52px) 68px;
-  grid-template-rows:    68px repeat(14, 48px) 68px;
+  grid-template-columns: 5.5fr repeat(14, 4fr) 5.5fr;
+  grid-template-rows:    5.5fr repeat(14, 4fr) 5.5fr;
   gap:0;
+  width: min(calc(100vh - 60px), calc(100vw - 216px));
+  height: min(calc(100vh - 60px), calc(100vw - 216px));
   border:3px solid var(--gold);
   border-radius:4px;
   box-shadow:0 0 40px rgba(201,144,10,0.2),inset 0 0 60px rgba(0,0,0,0.5);
@@ -118,9 +120,9 @@ body{background:#0e0804;background-image:radial-gradient(ellipse at 30% 20%,#2d1
   flex-direction:column;gap:6px;position:relative;overflow:hidden;
 }
 .board-center::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c9900a' fill-opacity='0.03'%3E%3Cpath d='M20 20l-10-10 10-10 10 10z'/%3E%3C/g%3E%3C/svg%3E");pointer-events:none;}
-.center-crest{font-size:clamp(36px,5vw,72px);text-shadow:0 0 30px var(--gold2);}
-.center-title{font-family:'Cinzel Decorative',serif;font-size:clamp(16px,2.2vw,30px);color:var(--gold2);text-shadow:0 0 20px var(--gold);text-align:center;line-height:1.2;}
-.center-sub{font-family:'Cinzel',serif;font-size:clamp(7px,0.9vw,11px);letter-spacing:3px;color:var(--gold);opacity:0.55;text-transform:uppercase;}
+.center-crest{font-size:clamp(20px,4vmin,52px);filter:drop-shadow(0 0 8px var(--gold));margin-bottom:4px;}
+.center-title{font-family:'Cinzel Decorative',serif;font-size:clamp(8px,1.8vmin,22px);color:var(--gold2);letter-spacing:clamp(2px,0.4vmin,5px);text-shadow:0 0 20px var(--gold);}
+.center-sub{font-family:'Cinzel',serif;font-size:clamp(5px,0.9vmin,11px);color:var(--stone2);letter-spacing:clamp(1px,0.2vmin,3px);}
 /* Direction arrows inside center */
 .dir-arrows{position:absolute;inset:0;pointer-events:none;}
 .dir-arr{position:absolute;font-family:'Cinzel',serif;font-size:clamp(8px,1vw,13px);color:var(--gold2);opacity:0.35;letter-spacing:2px;white-space:nowrap;}
@@ -129,11 +131,15 @@ body{background:#0e0804;background-image:radial-gradient(ellipse at 30% 20%,#2d1
 .da-right{right:8px;top:50%;transform:translateY(-50%) rotate(90deg);}
 .da-left{left:8px;top:50%;transform:translateY(-50%) rotate(-90deg);}
 /* Board spaces */
-.bspace{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:space-between;border:1px solid rgba(201,144,10,0.12);cursor:pointer;transition:all 0.15s;overflow:hidden;text-align:center;padding:2px 1px;}
+.bspace{position:relative;display:flex;flex-direction:column;align-items:center;
+justify-content:space-between;border:1px solid rgba(201,144,10,0.13);cursor:pointer;
+transition:all 0.15s;overflow:hidden;text-align:center;padding:2px 1px;gap:1px;}
 .bspace:hover{z-index:10;transform:scale(1.12);box-shadow:0 0 20px rgba(240,192,64,0.7)!important;border-color:var(--gold2)!important;}
 .bspace.player-here{box-shadow:0 0 0 2px var(--gold2),0 0 20px rgba(240,192,64,0.7)!important;z-index:5;transform:scale(1.08);}
 /* corner spaces  */
-.bspace.corner{background:linear-gradient(135deg,#1a1208,#0e0a04)!important;border-color:rgba(201,144,10,0.3)!important;}
+.bspace.corner{background:linear-gradient(135deg,#1a1208,#0e0a04)!important;border-color:rgba(201,144,10,0.35)!important;}
+.corner .sp-icon{font-size:22px!important;}
+.corner .sp-name{font-size:8px!important;letter-spacing:0.5px!important;}
 /* Space type backgrounds */
 .st-start{background:linear-gradient(135deg,#0a220a,#051205);border-color:#3a8020!important;}
 .st-village,.st-v1,.st-v2,.st-v3{background:linear-gradient(135deg,#162610,#0d1808);border-color:#3a7020!important;}
@@ -153,13 +159,13 @@ body{background:#0e0804;background-image:radial-gradient(ellipse at 30% 20%,#2d1
 .st-goto-prison{background:linear-gradient(135deg,#220808,#160404);border-color:#8b1a1a!important;}
 .st-legend{background:linear-gradient(135deg,#221808,#160f04);border-color:#f0c040!important;box-shadow:0 0 6px rgba(240,192,64,0.2);}
 /* Space content */
-.sp-stripe{height:3px;width:100%;flex-shrink:0;}
-.sp-icon{font-size:13px;line-height:1;}
-.sp-name{font-family:'Cinzel',serif;font-size:6.5px;font-weight:600;line-height:1.15;color:var(--parch);word-break:break-word;width:100%;}
-.sp-price{font-size:6px;color:var(--gold2);}
-.sp-houses{font-size:7px;color:var(--green2);}
+.sp-stripe{height:4px;width:100%;flex-shrink:0;border-radius:1px;}
+.sp-icon{font-size:clamp(10px,1.5vmin,18px);line-height:1;flex-shrink:0;}
+.sp-name{font-family:'Cinzel',serif;font-size:clamp(5.5px,0.85vmin,9px);font-weight:700;line-height:1.2;color:var(--parch);word-break:break-word;width:100%;}
+.sp-price{font-size:clamp(5px,0.7vmin,8px);color:var(--gold2);font-weight:600;}
+.sp-houses{font-size:8px;color:var(--green2);}
 .sp-tokens{display:flex;flex-wrap:wrap;gap:1px;justify-content:center;min-height:11px;}
-.sp-token{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;font-size:8px;border:1.5px solid;box-shadow:0 1px 5px rgba(0,0,0,0.8);}
+.sp-token{display:inline-flex;align-items:center;justify-content:center;width:clamp(12px,1.8vmin,20px);height:clamp(12px,1.8vmin,20px);border-radius:50%;font-size:clamp(7px,1.1vmin,12px);border:1.5px solid;box-shadow:0 1px 5px rgba(0,0,0,0.8);}
 .sp-token.active-tok{outline:1.5px solid #fff;outline-offset:1px;animation:tokPulse 1s ease-in-out infinite;}
 @keyframes tokPulse{0%,100%{box-shadow:0 1px 5px rgba(0,0,0,0.8);}50%{box-shadow:0 0 10px currentColor;}}
 .sp-token.just-moved{animation:tokBounce 0.5s cubic-bezier(0.36,0.07,0.19,0.97);}
@@ -351,6 +357,9 @@ select{background:#2d1a08;color:var(--parch);border:1px solid var(--stone);paddi
    ════════════════════════════════════════════════ */
 
 /* ── Tablet (≤900px) ─────────────────────────────── */
+
+.corner .sp-icon{font-size:clamp(16px,2.4vmin,26px)!important;}
+.corner .sp-name{font-size:clamp(6px,0.9vmin,10px)!important;font-weight:700!important;}
 @media(max-width:900px){
   .game-screen { flex-direction: column !important; }
   .side-panel {
@@ -376,8 +385,10 @@ select{background:#2d1a08;color:var(--parch);border:1px solid var(--stone);paddi
 @media(max-width:600px){
   /* Board: scale down to fit screen */
   .board-wrap {
-    grid-template-columns: 44px repeat(14, 32px) 44px !important;
-    grid-template-rows:    44px repeat(14, 28px) 44px !important;
+    width: min(calc(100vh - 220px), calc(100vw - 24px)) !important;
+    height: min(calc(100vh - 220px), calc(100vw - 24px)) !important;
+    grid-template-columns: 5.5fr repeat(14, 4fr) 5.5fr !important;
+    grid-template-rows:    5.5fr repeat(14, 4fr) 5.5fr !important;
   }
   .board-center {
     grid-column: 2/16 !important;
@@ -487,8 +498,8 @@ select{background:#2d1a08;color:var(--parch);border:1px solid var(--stone);paddi
 /* ── Very small phones (≤380px) ─────────────────── */
 @media(max-width:380px){
   .board-wrap {
-    grid-template-columns: 36px repeat(14, 26px) 36px !important;
-    grid-template-rows:    36px repeat(14, 23px) 36px !important;
+    grid-template-columns: 42px repeat(14, 30px) 42px !important;
+    grid-template-rows:    42px repeat(14, 27px) 42px !important;
   }
   .sp-icon { font-size: 8px !important; }
   .sp-name { font-size: 4px !important; }
@@ -519,8 +530,8 @@ select{background:#2d1a08;color:var(--parch);border:1px solid var(--stone);paddi
   }
   .board-scroll { order: 1; }
   .board-wrap {
-    grid-template-columns: 38px repeat(14, 28px) 38px !important;
-    grid-template-rows:    38px repeat(14, 25px) 38px !important;
+    grid-template-columns: 48px repeat(14, 36px) 48px !important;
+    grid-template-rows:    48px repeat(14, 32px) 48px !important;
   }
 }
 </style>
@@ -1891,6 +1902,11 @@ function connectSocket() {
   // ── Lobby events ──────────────────────────────────────────────────────
   socket.on('lobby_update', (data) => {
     lobbyData = data;
+    // Re-confirm host status in case callback timing was off
+    if (data && data.host && socket && data.host === socket.id) {
+      onlineIsHost = true;
+      onlineMyIdx  = 0;
+    }
     renderLobbyUI(data);
   });
 
@@ -2102,21 +2118,35 @@ function copyInviteLink() {
 // ── Render lobby ─────────────────────────────────────────────────────────
 function renderLobbyUI(data) {
   if (!data) return;
+
+  // Re-confirm host status from server data (fixes timing issues)
+  if (socket && data.host === socket.id) {
+    onlineIsHost = true;
+  }
+
   const listEl = document.getElementById('lobby-player-list');
   if (listEl) {
-    listEl.innerHTML = (data.players || []).map((p, i) => `
+    listEl.innerHTML = (data.players || []).map((p, i) => {
+      const isHost = (p.socketId && socket && p.socketId === socket.id && onlineIsHost)
+                  || i === 0;
+      return `
       <div class="room-player-row">
         <span style="font-size:18px;margin-right:6px">${p.emoji||'⚔️'}</span>
         <span style="font-family:'Cinzel',serif;font-size:12px;color:var(--parch2);flex:1">${p.name}</span>
-        ${i === 0
-          ? '<span style="font-size:9px;font-family:Cinzel,serif;color:var(--gold);letter-spacing:1px">HOST</span>'
-          : '<span style="font-size:10px;color:var(--green2)">✓</span>'}
-      </div>`).join('');
+        ${data.host && socket && data.host === socket.id && i === 0
+          ? '<span style="font-size:9px;font-family:Cinzel,serif;color:var(--gold);letter-spacing:1px">HOST (SEN)</span>'
+          : i === 0
+            ? '<span style="font-size:9px;font-family:Cinzel,serif;color:var(--gold);letter-spacing:1px">HOST</span>'
+            : '<span style="font-size:10px;color:var(--green2)">✓</span>'}
+      </div>`;
+    }).join('');
   }
+
   const hostCtrl = document.getElementById('lobby-host-controls');
   const guestMsg = document.getElementById('lobby-guest-msg');
   const startBtn = document.getElementById('lobby-start-btn');
   const count    = (data.players || []).length;
+
   if (onlineIsHost) {
     if (hostCtrl) hostCtrl.style.display = 'block';
     if (guestMsg) guestMsg.style.display = 'none';
