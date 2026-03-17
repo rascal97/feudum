@@ -2010,11 +2010,13 @@ function connectSocket() {
       };
     });
 
-    // Find my index by name (host is always 0)
-    if (!onlineIsHost) {
-      const me = players.find(p => p.name === myNick);
-      onlineMyIdx = me ? me.idx : -1;
-    }
+    // Find my index using socketId (most reliable) or fallback to name
+    const meBySocket = players.find(p => p.socketId === socket.id);
+    const meByName   = players.find(p => p.name === myNick);
+    const me = meBySocket || meByName;
+    onlineMyIdx = me ? me.idx : (onlineIsHost ? 0 : -1);
+    // Always set from server data — overrides any previous value
+    console.log('onlineMyIdx set to:', onlineMyIdx, 'socket:', socket.id, 'me:', me);
 
     showScreen('game-screen');
     document.getElementById('mode-badge').textContent = MODE_CFG[mode].label;
@@ -2268,7 +2270,8 @@ function pushOnlineState() {
     })),
     currentPlayerIdx: G.currentPlayerIdx,
     turn:          G.turn,
-    phase:         G.phase,
+    // Never push 'waiting' — it's local UI only. Push 'roll' instead.
+    phase:         (G.phase === 'waiting') ? 'roll' : G.phase,
     parkingPool:   G.parkingPool,
     isyanActive:   G.isyanActive,
     isyanTurns:    G.isyanTurns,
@@ -2325,6 +2328,7 @@ function leaveRoom() {
 // ── Turn helpers ──────────────────────────────────────────────────────────
 function isMyOnlineTurn() {
   if (!onlineActive) return true;
+  if (onlineMyIdx < 0) return false; // not properly initialized
   return G.currentPlayerIdx === onlineMyIdx;
 }
 function isOnlineGame() { return onlineActive; }
