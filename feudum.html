@@ -1793,8 +1793,18 @@ function payJailFine(){const cp=currentPlayer();if(cp.gold>=50){cp.gold-=50;G.pa
 function finishLand(cp,isDouble){
   renderBoard();renderPlayers();
   if(G.isyanActive){G.isyanTurns--;if(G.isyanTurns<=0){G.isyanActive=false;addLog(t('logIsyan'),'success');}}
-  if(isDouble&&!cp.inJail&&!cp.eliminated){G.phase='roll';G.diceRolled=false;addLog(t('logDouble', cp.emoji),'success');updateActionButtons();if(onlineActive)pushOnlineState();if(cp.type==='ai')setTimeout(()=>performRoll(cp),900);}
-  else{G.phase='action';G.diceRolled=true;updateActionButtons();if(onlineActive)pushOnlineState();if(cp.type==='ai')setTimeout(endTurn,700);}
+  if(isDouble&&!cp.inJail&&!cp.eliminated){
+    G.phase='roll'; G.diceRolled=false;
+    addLog(t('logDouble', cp.emoji),'success');
+    if(onlineActive) pushOnlineState(); // push phase='roll' before any local override
+    updateActionButtons();
+    if(cp.type==='ai') setTimeout(()=>performRoll(cp),900);
+  } else {
+    G.phase='action'; G.diceRolled=true;
+    if(onlineActive) pushOnlineState(); // push phase='action' before local override
+    updateActionButtons();
+    if(cp.type==='ai') setTimeout(endTurn,700);
+  }
 }
 function getBuildable(cp){
   const groups={};cp.properties.forEach(prop=>{const s=G.spaces.find(sp=>sp.id===prop.id);if(!s||!s.group||s.group==='h')return;if(!groups[s.group])groups[s.group]=[];groups[s.group].push({space:s,prop});});
@@ -1830,6 +1840,12 @@ function endTurn(){
   // Update UI
   updateTurnInfo(); renderPlayers();
   const cp=currentPlayer();
+
+  // Push FIRST with phase='roll' — recipients see correct phase
+  // (phase='waiting' is only a local UI state, never sent over network)
+  if(onlineActive) pushOnlineState();
+
+  // THEN set local waiting state for non-turn player
   if(cp && cp.type==='ai' && !cp.eliminated){
     G.phase='ai'; updateActionButtons(); setTimeout(aiTurn,800);
   } else if(onlineActive && !isMyOnlineTurn()){
@@ -1838,8 +1854,6 @@ function endTurn(){
     updateActionButtons();
   }
 
-  // ALWAYS push in online mode — no guard, state is finalized
-  if(onlineActive) pushOnlineState();
   checkMusicContext(); updateOnlineTurnBanner();
 }
 function checkBankruptcy(cp){if(cp.gold<=0&&!cp.eliminated&&cp.properties.length===0)eliminatePlayer(cp);}
@@ -2013,9 +2027,13 @@ function connectSocket() {
 
   // ── State sync (guests receive from host) ─────────────────────────────
   socket.on('state_update', (state) => {
-    // Apply state from ANY other player (server already excludes sender)
-    // Both host and guest need to apply each other's state updates
+    // Apply state from any other player
     applyRemoteState(state);
+    // If we're the host and received a guest's state,
+    // re-broadcast to all other players so everyone stays in sync
+    if (onlineIsHost && state) {
+      pushOnlineState();
+    }
   });
 
   // ── Player left ───────────────────────────────────────────────────────
@@ -2261,15 +2279,12 @@ function pushOnlineState() {
     alliances:     G.alliances || [],
     blacklisted:   G.blacklisted || {},
   };
-  socket._lastPushTs = Date.now();
   socket.emit('push_state', state);
 }
 
 // ── Apply remote state (guests) ───────────────────────────────────────────
 function applyRemoteState(state) {
   if (!state) return;
-  // Echo protection: skip if this came back within 50ms of our own push
-  if (socket && socket._lastPushTs && Date.now() - socket._lastPushTs < 50) return;
   const wasMyTurn = isMyOnlineTurn();
   G.players           = state.players;
   G.currentPlayerIdx  = state.currentPlayerIdx;
