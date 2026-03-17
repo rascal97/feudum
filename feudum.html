@@ -72,7 +72,7 @@ body{background:#0e0804;background-image:radial-gradient(ellipse at 30% 20%,#2d1
 .board-top-bar{background:linear-gradient(90deg,#1a0f05,#2d1a08,#1a0f05);border-bottom:2px solid var(--gold);padding:7px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .turn-info{font-family:'Cinzel',serif;font-size:12px;color:var(--gold2);}
 .mode-badge{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;padding:2px 8px;border:1px solid var(--gold);border-radius:2px;color:var(--gold);opacity:0.7;}
-.board-scroll{flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:8px;}
+.board-scroll{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:4px;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;}
 
 /* ===================================================
    BOARD RECTANGLE LAYOUT
@@ -111,6 +111,7 @@ body{background:#0e0804;background-image:radial-gradient(ellipse at 30% 20%,#2d1
   box-shadow:0 0 40px rgba(201,144,10,0.2),inset 0 0 60px rgba(0,0,0,0.5);
   background:#0a0602;
   flex-shrink:0;
+  touch-action:pan-x pan-y;
 }
 .board-center{
   grid-column:2/16;grid-row:2/16;
@@ -385,10 +386,11 @@ select{background:#2d1a08;color:var(--parch);border:1px solid var(--stone);paddi
 @media(max-width:600px){
   /* Board: scale down to fit screen */
   .board-wrap {
-    width: min(calc(100vh - 220px), calc(100vw - 24px)) !important;
-    height: min(calc(100vh - 220px), calc(100vw - 24px)) !important;
+    width: min(calc(100vh - 200px), calc(100vw - 16px)) !important;
+    height: min(calc(100vh - 200px), calc(100vw - 16px)) !important;
     grid-template-columns: 5.5fr repeat(14, 4fr) 5.5fr !important;
     grid-template-rows:    5.5fr repeat(14, 4fr) 5.5fr !important;
+    flex-shrink: 0 !important;
   }
   .board-center {
     grid-column: 2/16 !important;
@@ -519,8 +521,52 @@ select{background:#2d1a08;color:var(--parch);border:1px solid var(--stone);paddi
 }
 
 /* ── Landscape phone ────────────────────────────── */
-@media(max-width:900px) and (orientation:landscape) and (max-height:500px){
-  .game-screen { flex-direction: row !important; }
+
+/* ── Landscape phone/tablet — FIXED ────────────────────────── */
+@media(orientation:landscape) and (max-height:600px){
+  /* Game screen: side panel on left (slim), board takes rest */
+  #game-screen { flex-direction: row !important; overflow:hidden; }
+
+  /* Left panel: very slim, collapsible info */
+  .left-panel {
+    width: 140px !important;
+    min-width: 120px !important;
+    max-width: 140px !important;
+    overflow-y: auto !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Board scroll: fills remaining space, SCROLLABLE */
+  .board-scroll {
+    flex: 1 !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-x pan-y !important;
+    padding: 4px !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+  }
+
+  /* Board: fixed size that fits landscape height */
+  .board-wrap {
+    width:  calc((100vh - 50px) * 1.0) !important;
+    height: calc(100vh - 50px) !important;
+    flex-shrink: 0 !important;
+    min-width: calc((100vh - 50px) * 1.0) !important;
+  }
+
+  /* Side panel (right) — hide in landscape, save space */
+  .side-panel { display: none !important; }
+
+  /* Action buttons at bottom of left panel */
+  #action-buttons .btn { font-size: 10px !important; padding: 6px 8px !important; }
+
+  /* Header slim */
+  .game-header { padding: 2px 8px !important; }
+  .turn-info { font-size: 9px !important; }
+  .turn-counter { font-size: 8px !important; }
+}
+
   .side-panel {
     width: 160px !important;
     flex-direction: column !important;
@@ -534,6 +580,20 @@ select{background:#2d1a08;color:var(--parch);border:1px solid var(--stone);paddi
     grid-template-rows:    48px repeat(14, 32px) 48px !important;
   }
 }
+
+/* ── Combat Systems ───────────────────────────────────── */
+.siege-badge{pointer-events:none;}
+.room-player-row{display:flex;align-items:center;padding:6px 8px;background:rgba(0,0,0,0.2);border-radius:3px;margin-bottom:4px;border:1px solid rgba(201,144,10,0.1);}
+@keyframes combatPulse{0%,100%{box-shadow:0 0 0 0 rgba(200,50,50,0);}50%{box-shadow:0 0 0 6px rgba(200,50,50,0.3);}}
+.combat-active{animation:combatPulse 1s infinite;}
+.st-interaction{background:linear-gradient(135deg,#0a1a2a,#060e18);border-color:#3a8ad4!important;}
+.st-interaction .sp-icon{animation:interactionPulse 2s ease-in-out infinite;}
+@keyframes interactionPulse{0%,100%{transform:scale(1) rotate(0deg);}50%{transform:scale(1.2) rotate(10deg);}}
+.battle-fighter{background:rgba(0,0,0,0.3);border:1px solid rgba(201,144,10,0.2);border-radius:6px;padding:12px 16px;text-align:center;min-width:90px;transition:all 0.3s;}
+.battle-fighter.battle-active{border-color:var(--red2);box-shadow:0 0 12px rgba(200,60,60,0.4);}
+.battle-roll-result{font-family:'Cinzel Decorative',serif;font-size:28px;color:var(--gold2);font-weight:bold;margin-top:6px;}
+.interaction-card{background:linear-gradient(135deg,#0a1e35,#061220);border:2px solid #3a8ad4;border-radius:6px;padding:14px;margin-bottom:8px;cursor:pointer;transition:all 0.2s;}
+.interaction-card:hover{border-color:#5aaaf4;transform:scale(1.02);}
 </style>
 </head>
 <body>
@@ -1182,10 +1242,10 @@ function createBoard(){
     s8:'Potter\'s Place', s9:'River Castle',      s10:'Ambush!',         s11:'Town Square',
     s12:'Mountain Keep',  s13:'Fate Card',        s14:'Forest Castle',   s15:'Castle Dungeon',
     s16:'Sea Castle',     s17:'Village Walls',    s18:'South Harbor',    s19:'Bell Tower',
-    s20:'Fate Card',      s21:'Monastery',        s22:'Plague!',         s23:'Harbor Keep',
+    s20:'Interaction!',  s21:'Monastery',        s22:'Plague!',         s23:'Harbor Keep',
     s24:'Village Fair',   s25:'Fate Card',        s26:'Walled City',     s27:'Revolt!',
     s28:'Great Tower',    s29:'War Tax',          s30:'Market Square',   s31:'Grand Cathedral',
-    s32:'Fate Card',      s33:'Saints Sanctuary', s34:'Dark Magic!',     s35:'Dragon Keep',
+    s32:'Interaction!',  s33:'Saints Sanctuary', s34:'Dark Magic!',     s35:'Dragon Keep',
     s36:'East Harbor',    s37:'Fate Card',        s38:'Golden Tower',    s39:'Epidemic!',
     s40:'Royal Palace',   s41:'Fate Card',        s42:'Twilight Village', s43:'Black Market',
     s44:'Sacred Tower',   s45:'Go to Dungeon!',   s46:'North Tower',     s47:'Fate Card',
@@ -1199,10 +1259,10 @@ function createBoard(){
     s8:'Çömlekçi Yeri',   s9:'Nehir Kalesi',     s10:'Pusu!',           s11:'Kasaba Meydanı',
     s12:'Dağ Kalesi',     s13:'Kader Kartı',     s14:'Orman Kalesi',    s15:'Kale Zindanı',
     s16:'Deniz Kalesi',   s17:'Köy Surları',     s18:'Güney Limanı',    s19:'Çan Kulesi',
-    s20:'Kader Kartı',    s21:'Manastır',         s22:'Veba!',           s23:'Liman Kalesi',
+    s20:'Etkileşim!',     s21:'Manastır',         s22:'Veba!',           s23:'Liman Kalesi',
     s24:'Köy Panayırı',   s25:'Kader Kartı',     s26:'Surlu Şehir',     s27:'İsyan!',
     s28:'Büyük Burç',     s29:'Savaş Vergisi',   s30:'Pazar Meydanı',   s31:'Büyük Katedral',
-    s32:'Kader Kartı',    s33:'Azizler Tapınağı', s34:'Kara Büyü!',     s35:'Ejder Kalesi',
+    s32:'Etkileşim!',     s33:'Azizler Tapınağı', s34:'Kara Büyü!',     s35:'Ejder Kalesi',
     s36:'Doğu Limanı',    s37:'Kader Kartı',     s38:'Altın Kule',      s39:'Salgın!',
     s40:'Kral Sarayı',    s41:'Kader Kartı',     s42:'Alacakaranlık',   s43:'Siyah Pazar',
     s44:'Kutsal Kule',    s45:'Hapse Git!',       s46:'Kuzey Kulesi',    s47:'Kader Kartı',
@@ -1243,7 +1303,7 @@ function createBoard(){
     sp(29,'tax',   N.s29,'⚖️'),
     sp(30,'free',  N.s30,'🎭',{corner:true}),
     sp(31,'church',N.s31,'⛩',{group:'ch2',price:300,rent:[26,130,390,900,1100,1275],color:'#e0a020'}),
-    sp(32,'fate',  N.s32,'🔮'),
+    sp(32,'interaction',N.s32,'🃏'),
     sp(33,'church',N.s33,'✨',{group:'ch2',price:320,rent:[28,150,450,1000,1200,1400],color:'#e0a020'}),
     sp(34,'trap',  N.s34,'🧿'),
     sp(35,'castle',N.s35,'🐉',{group:'c3',price:350,rent:[35,175,500,1100,1300,1500],color:'#6eadd4'}),
@@ -1262,7 +1322,7 @@ function createBoard(){
     sp(48,'harbor',N.s48,'⚓',{group:'h', price:200,color:'#2e8a9a'}),
     sp(49,'trap',  N.s49,'💀'),
     sp(50,'village',N.s50,'🌻',{group:'v2',price:115,rent:[8,42,105,310,460,610],color:'#8aaa3a'}),
-    sp(51,'fate',  N.s51,'🔮'),
+    sp(51,'interaction',N.s51,'🃏'),
     sp(52,'castle',N.s52,'🏰',{group:'c2',price:210,rent:[20,100,290,750,940,1140],color:'#4e8dc4'}),
     sp(53,'tax',   N.s53,'🔔'),
     sp(54,'church',N.s54,'⚰️',{group:'ch1',price:260,rent:[22,110,320,780,960,1140],color:'#c9900a'}),
@@ -1350,9 +1410,59 @@ const TRAP_CARDS_DATA={
   ]
 };
 function getTrapCards(){ return TRAP_CARDS_DATA[LANG]||TRAP_CARDS_DATA.tr; }
+// ════════════════════════════════════════════════════════════════════
+// ETKİLEŞİM KARTLARI — Oyuncular arası etkileşim
+// ════════════════════════════════════════════════════════════════════
+const INTERACTION_CARDS_DATA = {
+  tr: [
+    { name:'Yer Değiştir!',     icon:'🔄', type:'swap',
+      desc:'En sondaki oyuncuyla yer değiştirirsin! Pozisyonlar değişir.' },
+    { name:'Herkesle Savaş!',   icon:'⚔️', type:'battle_all',
+      desc:'Diğer tüm oyuncularla sırayla zar atışırsın. Her biri için ⚜50 ortaya.' },
+    { name:'Haraç Turu!',       icon:'👑', type:'tribute_all',
+      desc:'Tüm oyuncular sana ⚜30 altın haraç öder!' },
+    { name:'Veba Zinciri!',     icon:'☠️', type:'chain_lose',
+      desc:'Sağındaki oyuncuya ⚜80 verirsin, o da sağındakine, zincir devam eder!' },
+    { name:'Büyük Soygun!',     icon:'🦹', type:'rob_richest',
+      desc:'En zengin oyuncudan altınının %20\'sini çalarsın!' },
+    { name:'Kader Yargısı!',    icon:'⚖️', type:'judge',
+      desc:'Tüm oyuncular 1 zar atar. En düşük atan ⚜100 kaybeder!' },
+    { name:'Kraliyet Hediyesi!',icon:'🎁', type:'gift_poorest',
+      desc:'En fakir oyuncuya ⚜100 verirsin ama o oyuncu 2 tur boyunca sana kira ödemiyor.' },
+    { name:'Savaş Meydanı!',    icon:'🏟️', type:'arena',
+      desc:'Tüm oyuncular çift zar atar. En yüksek vs en düşük: kazanan ⚜200 alır!' },
+    { name:'Kara Liste!',       icon:'📜', type:'blacklist',
+      desc:'Bir oyuncu seç — o oyuncu 2 tur boyunca mülk satın alamaz!' },
+    { name:'İttifak Teklifi!',  icon:'🤝', type:'alliance_offer',
+      desc:'Bir oyuncuya ittifak teklif et — kabul ederse birbirinize kira ödemezsiniz (3 tur).' },
+  ],
+  en: [
+    { name:'Switch Places!',    icon:'🔄', type:'swap',
+      desc:'Switch positions with the last-place player!' },
+    { name:'Fight Everyone!',   icon:'⚔️', type:'battle_all',
+      desc:'Battle every other player in sequence. ⚜50 stake each!' },
+    { name:'Tribute Round!',    icon:'👑', type:'tribute_all',
+      desc:'All other players pay you ⚜30 gold!' },
+    { name:'Plague Chain!',     icon:'☠️', type:'chain_lose',
+      desc:'Pay ⚜80 to the player on your right, they pass it on — chain reaction!' },
+    { name:'Grand Robbery!',    icon:'🦹', type:'rob_richest',
+      desc:'Steal 20% of the richest player\'s gold!' },
+    { name:'Trial by Fate!',    icon:'⚖️', type:'judge',
+      desc:'Everyone rolls 1 die. Lowest roll loses ⚜100!' },
+    { name:'Royal Gift!',       icon:'🎁', type:'gift_poorest',
+      desc:'Give ⚜100 to the poorest player — but they pay you no rent for 2 turns.' },
+    { name:'Battle Arena!',     icon:'🏟️', type:'arena',
+      desc:'Everyone rolls 2 dice. Highest vs Lowest: winner takes ⚜200!' },
+    { name:'Blacklist!',        icon:'📜', type:'blacklist',
+      desc:'Choose a player — they cannot buy properties for 2 turns!' },
+    { name:'Alliance Offer!',   icon:'🤝', type:'alliance_offer',
+      desc:'Offer an alliance — if accepted, no rent between you for 3 turns.' },
+  ]
+};
+function getInteractionCards(){ return INTERACTION_CARDS_DATA[LANG]||INTERACTION_CARDS_DATA.tr; }
 const TRAP_CARDS=new Proxy([],{get:(t,k)=>getTrapCards()[k]});
 // ── STATE ──
-let G={mode:'normal',players:[],spaces:[],currentPlayerIdx:0,turn:1,phase:'roll',diceRolled:false,parkingPool:200,isyanActive:false,isyanTurns:0,immuneToTrap:false};
+let G={mode:'normal',players:[],spaces:[],currentPlayerIdx:0,turn:1,phase:'roll',diceRolled:false,parkingPool:200,isyanActive:false,isyanTurns:0,immuneToTrap:false,sieges:{},tributeRequest:null,alliances:[],blacklisted:{}};
 
 // ── SETUP HELPERS ──
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
@@ -1375,7 +1485,7 @@ function removeSetupPlayer(i){setupPlayers.splice(i,1);renderSetupPlayers();}
 function startGame(){
   if(setupPlayers.length<1){showToast('En az 1 oyuncu!');return;}
   const cfg=MODE_CFG[G.mode];
-  G.spaces=createBoard();G.currentPlayerIdx=0;G.turn=1;G.phase='roll';G.diceRolled=false;G.parkingPool=200;G.isyanActive=false;G.immuneToTrap=false;
+  G.spaces=createBoard();G.currentPlayerIdx=0;G.turn=1;G.phase='roll';G.diceRolled=false;G.parkingPool=200;G.isyanActive=false;G.immuneToTrap=false;G.sieges={};G.tributeRequest=null;G.alliances=[];G.blacklisted={};
   G.players=setupPlayers.map((sp,i)=>{const pc=PLAYER_CFGS[sp.cfgIdx];return{id:i,name:sp.name,type:sp.type,emoji:pc.emoji,color:pc.color,gold:cfg.startGold,position:0,properties:[],inJail:false,jailTurns:0,skipTurns:0,eliminated:false,doubleCount:0};});
   showScreen('game-screen');initAudio();
   document.getElementById('mode-badge').textContent=cfg.label;
@@ -1420,7 +1530,7 @@ function buildBoardDOM(){
   });
 }
 function getSpaceClass(s){
-  const m={'start':'st-start','village':'st-village','v1':'st-village','v2':'st-village','v3':'st-village','castle':'st-castle','c1':'st-castle','c2':'st-castle','c3':'st-castle','harbor':'st-harbor','church':'st-church','ch1':'st-church','ch2':'st-church','ch3':'st-church','trap':'st-trap','fate':'st-fate','tax':'st-tax','prison':'st-prison','free':'st-free','market':'st-market','goto-prison':'st-goto-prison'};
+  const m={'start':'st-start','interaction':'st-interaction','village':'st-village','v1':'st-village','v2':'st-village','v3':'st-village','castle':'st-castle','c1':'st-castle','c2':'st-castle','c3':'st-castle','harbor':'st-harbor','church':'st-church','ch1':'st-church','ch2':'st-church','ch3':'st-church','trap':'st-trap','fate':'st-fate','tax':'st-tax','prison':'st-prison','free':'st-free','market':'st-market','goto-prison':'st-goto-prison'};
   return m[s.type]||'st-'+s.type;
 }
 
@@ -1440,6 +1550,19 @@ function renderBoard(){
     }).join('');
     el.innerHTML=`${stripe}<div class="sp-icon">${space.icon}</div><div class="sp-name">${space.name}</div>${houses}${price}<div class="sp-tokens">${tokens}</div>`;
     if(here.length>0)el.classList.add('player-here');else el.classList.remove('player-here');
+    // Siege indicator
+    if(G.sieges && G.sieges[idx]){
+      el.style.outline='2px solid #c0a030';
+      el.style.outlineOffset='-2px';
+      const siegeEl=el.querySelector('.siege-badge')||document.createElement('div');
+      siegeEl.className='siege-badge';
+      siegeEl.style.cssText='position:absolute;top:1px;right:1px;font-size:8px;line-height:1;z-index:2';
+      siegeEl.textContent='🏹'+G.sieges[idx].turnsLeft;
+      if(!el.querySelector('.siege-badge'))el.appendChild(siegeEl);
+    } else {
+      if(el.style.outline)el.style.outline='';
+      const sb=el.querySelector('.siege-badge');if(sb)sb.remove();
+    }
     // Dynamic owner glow
     if(owner && !el.classList.contains('player-here')){
       el.style.boxShadow='0 0 8px '+owner.color+'66,inset 0 0 6px '+owner.color+'22';
@@ -1485,6 +1608,13 @@ function updateActionButtons(){
   } else if(G.phase==='action'){
     let h=`<button class="btn btn-primary" onclick="endTurn()">${t('endTurn')}</button>`;
     if(getBuildable(cp).length>0)h+=`<button class="btn btn-secondary btn-sm" onclick="showBuildMenu()" style="margin-top:5px">${t('build')}</button>`;
+    // Combat action buttons
+    const hasEnemyBuildings=G.players.some(p=>p.id!==cp.id&&!p.eliminated&&p.properties.some(pr=>pr.houses>0));
+    const hasEnemyProps=G.players.some(p=>p.id!==cp.id&&!p.eliminated&&p.properties.length>0);
+    const hasWeaker=G.players.some(p=>p.id!==cp.id&&!p.eliminated&&p.gold<cp.gold&&p.gold>=30);
+    if(hasEnemyBuildings)h+=`<button class="btn btn-sm" style="margin-top:5px;background:linear-gradient(135deg,#5a1010,#3a0808);border-color:#c03030;color:#ff8080" onclick="showSabotageMenu()">🔥 ${LANG==='tr'?'Sabotaj':'Sabotage'}</button>`;
+    if(hasEnemyProps&&cp.gold>=100)h+=`<button class="btn btn-sm" style="margin-top:5px;background:linear-gradient(135deg,#3a3010,#252008);border-color:#c0a030;color:#ffd080" onclick="showSiegeMenu()">🏹 ${LANG==='tr'?'Kuşat':'Besiege'}</button>`;
+    if(hasWeaker)h+=`<button class="btn btn-sm" style="margin-top:5px;background:linear-gradient(135deg,#3a2800,#281c00);border-color:var(--gold);color:var(--gold2)" onclick="showTributeMenu()">👑 ${LANG==='tr'?'Haraç İste':'Demand Tribute'}</button>`;
     btns.innerHTML=h;
   } else {btns.innerHTML='<div style="font-size:11px;color:var(--stone2);text-align:center;padding:8px;">🤖 ...</div>';}
 }
@@ -1540,6 +1670,10 @@ function highlightSpace(pos){const el=document.getElementById('bspace-'+pos);if(
 
 function landOn(cp,pos,isDouble){
   const space=G.spaces[pos];addLog(t('logLands', cp.emoji, space.icon, space.name));
+  // Check combat first (other players on same space)
+  if(!cp.inJail && space.type!=='prison' && space.type!=='goto-prison'){
+    if(checkCombat(cp,pos,isDouble)) return; // combat modal takes over
+  }
   if(space.type==='start'){cp.gold+=200;addLog(t('logStartLand', cp.emoji),'success');finishLand(cp,isDouble);}
   else if(space.type==='goto-prison'){sendToJail(cp);finishLand(cp,false);}
   else if(space.type==='prison'){playSfxJailVisit();addLog(t('logJailVisit', cp.emoji));finishLand(cp,isDouble);}
@@ -1554,6 +1688,7 @@ function landOn(cp,pos,isDouble){
     else drawTrapCard(cp,isDouble);
   }
   else if(space.type==='fate'){playFateOpen();openFateOverlay(cp,isDouble);}
+  else if(space.type==='interaction'){playFateOpen();openInteractionOverlay(cp,isDouble);}
   else if(space.type==='tax'){handleTax(cp,space,isDouble);}
   else if(space.type==='market'){addLog(t('logMarket', cp.emoji));finishLand(cp,isDouble);}
   else if(space.price){handleProperty(cp,space,pos,isDouble);}
@@ -1700,17 +1835,28 @@ function handleProperty(cp,space,pos,isDouble){
   else{
     const prop=owner.properties.find(pr=>pr.id===pos);let rent=calcRent(space,owner,prop);
     if(G.isyanActive)rent=Math.floor(rent*0.5);
+    // Alliance check — no rent between allied players
+    if(isAllied(cp.id, owner.id)){addLog(`🤝 ${cp.emoji}→${owner.emoji}: ${LANG==='tr'?'İttifak — kira yok!':'Alliance — no rent!'}`, 'success');finishLand(cp,isDouble);return;}
     if(cp.gold>=rent){cp.gold-=rent;owner.gold+=rent;playRent();addLog(t('logRent', cp.emoji, owner.emoji, rent),'danger');}
     else{owner.gold+=cp.gold;addLog(t('logAllGold', cp.emoji, cp.gold),'danger');cp.gold=0;checkBankruptcy(cp);}
     renderPlayers();finishLand(cp,isDouble);
   }
 }
 function calcRent(space,owner,prop){
+  // Check if space is under siege — no rent collected
+  if(isUnderSiege(space.id)){
+    addLog(`🏹 ${space.name} ${LANG==='tr'?'kuşatma altında — kira alınamaz!':'is besieged — no rent!'}`, 'danger');
+    return 0;
+  }
   const cfg=MODE_CFG[G.mode];const houses=prop?prop.houses:0;let base=space.rent?space.rent[houses]:25;
   if(space.group==='h'){const hc=owner.properties.filter(p=>{const s=G.spaces.find(sp=>sp.id===p.id);return s&&s.group==='h';}).length;base=25*Math.pow(2,hc-1);}
   return Math.floor(base*cfg.rentMult);
 }
 function showBuyModal(cp,space,isDouble){
+  if(isBlacklisted(cp.id)){
+    addLog(`📜 ${cp.emoji} ${LANG==='tr'?'kara listede — satın alamaz!':'blacklisted — cannot buy!'}`, 'danger');
+    finishLand(cp,isDouble); return;
+  }
   const ca=cp.gold>=space.price;
   const rentRow=space.rent?('<div class="pcr">'+(LANG==='en'?'Base rent':'Temel kira')+': ⚜'+space.rent[0]+'</div>'):'';
   const buyBtn=ca?('<button class="btn btn-primary" onclick="buyProp('+space.id+','+isDouble+')">⚜ '+t('buy')+' ('+space.price+')</button>'):'<div style="color:var(--red2);font-size:12px">'+t('insufficientGold')+'</div>';
@@ -1741,8 +1887,8 @@ function payJailFine(){const cp=currentPlayer();if(cp.gold>=50){cp.gold-=50;G.pa
 function finishLand(cp,isDouble){
   renderBoard();renderPlayers();
   if(G.isyanActive){G.isyanTurns--;if(G.isyanTurns<=0){G.isyanActive=false;addLog(t('logIsyan'),'success');}}
-  if(isDouble&&!cp.inJail&&!cp.eliminated){G.phase='roll';G.diceRolled=false;addLog(t('logDouble', cp.emoji),'success');updateActionButtons();if(cp.type==='ai')setTimeout(()=>performRoll(cp),900);}
-  else{G.phase='action';G.diceRolled=true;updateActionButtons();if(cp.type==='ai')setTimeout(endTurn,700);}
+  if(isDouble&&!cp.inJail&&!cp.eliminated){G.phase='roll';G.diceRolled=false;addLog(t('logDouble', cp.emoji),'success');updateActionButtons();if(onlineActive)pushOnlineState();if(cp.type==='ai')setTimeout(()=>performRoll(cp),900);}
+  else{G.phase='action';G.diceRolled=true;updateActionButtons();if(onlineActive)pushOnlineState();if(cp.type==='ai')setTimeout(endTurn,700);}
 }
 function getBuildable(cp){
   const groups={};cp.properties.forEach(prop=>{const s=G.spaces.find(sp=>sp.id===prop.id);if(!s||!s.group||s.group==='h')return;if(!groups[s.group])groups[s.group]=[];groups[s.group].push({space:s,prop});});
@@ -1764,17 +1910,18 @@ function buildHouse(spaceId){
   renderPlayers();document.getElementById('modal-overlay').classList.remove('active');
 }
 function endTurn(){
-  document.getElementById('modal-overlay').classList.remove('active');G.phase='roll';G.diceRolled=false;checkGameEnd();
+  document.getElementById('modal-overlay').classList.remove('active');G.phase='roll';G.diceRolled=false;tickSieges();tickInteractionEffects();checkGameEnd();
   if(!document.getElementById('game-screen').classList.contains('active'))return;
   let next=(G.currentPlayerIdx+1)%G.players.length;let att=0;
   while(G.players[next].eliminated&&att++<G.players.length)next=(next+1)%G.players.length;
   if(next<=G.currentPlayerIdx)G.turn++;
-  G.currentPlayerIdx=next;updateTurnInfo();updateActionButtons();renderPlayers();
+  G.currentPlayerIdx=next;updateTurnInfo();renderPlayers();
   const cp=currentPlayer();
-  // Push state to Firebase after turn ends
-  if(onlineActive) pushOnlineState();
   if(cp&&cp.type==='ai'&&!cp.eliminated){G.phase='ai';updateActionButtons();setTimeout(aiTurn,800);}
   else if(onlineActive && !isMyOnlineTurn()){G.phase='waiting';updateActionButtons();}
+  else{updateActionButtons();}
+  // Push AFTER all state (phase, currentPlayerIdx) is finalized
+  if(onlineActive) pushOnlineState();
   checkMusicContext();updateOnlineTurnBanner();
 }
 function checkBankruptcy(cp){if(cp.gold<=0&&!cp.eliminated&&cp.properties.length===0)eliminatePlayer(cp);}
@@ -1948,7 +2095,8 @@ function connectSocket() {
 
   // ── State sync (guests receive from host) ─────────────────────────────
   socket.on('state_update', (state) => {
-    if (onlineIsHost) return; // host doesn't receive its own pushes
+    // Apply state from ANY other player (server already excludes sender)
+    // Both host and guest need to apply each other's state updates
     applyRemoteState(state);
   });
 
@@ -2174,7 +2322,9 @@ function startOnlineGame() {
 
 // ── Push state (host → server → guests) ─────────────────────────────────
 function pushOnlineState() {
-  if (!onlineActive || !onlineIsHost || !socket) return;
+  if (!onlineActive || !socket) return;
+  // Host always pushes; guest only pushes when it's their turn
+  if (!onlineIsHost && !isMyOnlineTurn()) return;
   const state = {
     players: G.players.map(p => ({
       ...p,
@@ -2187,7 +2337,11 @@ function pushOnlineState() {
     isyanActive:   G.isyanActive,
     isyanTurns:    G.isyanTurns,
     immuneToTrap:  G.immuneToTrap,
-    diceRolled:    G.diceRolled
+    diceRolled:    G.diceRolled,
+    sieges:        G.sieges || {},
+    tributeRequest:G.tributeRequest || null,
+    alliances:     G.alliances || [],
+    blacklisted:   G.blacklisted || {},
   };
   socket.emit('push_state', state);
 }
@@ -2205,6 +2359,10 @@ function applyRemoteState(state) {
   G.isyanTurns        = state.isyanTurns;
   G.immuneToTrap      = state.immuneToTrap;
   G.diceRolled        = state.diceRolled;
+  if (state.sieges !== undefined)          G.sieges = state.sieges;
+  if (state.alliances !== undefined)       G.alliances = state.alliances;
+  if (state.blacklisted !== undefined)     G.blacklisted = state.blacklisted;
+  if (state.tributeRequest !== undefined)  G.tributeRequest = state.tributeRequest;
   renderBoard(); renderPlayers(); updateTurnInfo(); updateActionButtons();
   updateOnlineTurnBanner();
   if (!wasMyTurn && isMyOnlineTurn()) {
@@ -2680,6 +2838,761 @@ function clearLeaderboard() {
 }
 
 // lb title updated inside setLang below
+
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║   YENİ MEKANİKLER: SAVAŞ · SABOTAJ · KUŞATMA · HARAÇ         ║
+// ╚══════════════════════════════════════════════════════════════════╝
+
+// ── G state extensions (added to G object at start) ──────────────
+// G.sieges = { spaceId: { byPlayerId, turnsLeft } }
+// G.tributeRequest = null  (pending tribute offer)
+// These are initialized in startGame()
+
+// ════════════════════════════════════════════════════════════════════
+// 1. SAVAŞ SİSTEMİ — Aynı kareye gelince otomatik zar atışması
+// ════════════════════════════════════════════════════════════════════
+function checkCombat(cp, pos, isDouble) {
+  // Find other players on the same space (not self, not eliminated, not in jail)
+  const rivals = G.players.filter(p =>
+    p.id !== cp.id && !p.eliminated && p.position === pos && !p.inJail
+  );
+  if (rivals.length === 0) return false;
+
+  // Battle the strongest rival (most gold) for dramatic effect
+  const rival = rivals.reduce((a, b) => a.gold > b.gold ? a : b);
+  showCombatModal(cp, rival, pos, isDouble);
+  return true;
+}
+
+// ── SAVAŞ: Sıralı animasyonlu zar atışı ─────────────────────────────
+let _combatState = null; // { attackerId, defenderId, pos, isDouble, stake, aRoll, dRoll, phase }
+
+function showCombatModal(attacker, defender, pos, isDouble) {
+  const stake = Math.floor(Math.min(attacker.gold, defender.gold) * 0.25);
+  _combatState = { attackerId: attacker.id, defenderId: defender.id, pos, isDouble, stake, aRoll:0, dRoll:0, phase:'attacker_roll' };
+
+  renderCombatModal();
+  document.getElementById('modal-overlay').classList.add('active');
+
+  // AI attacker auto-rolls
+  if (attacker.type === 'ai') setTimeout(() => combatRoll('attacker'), 900);
+}
+
+function renderCombatModal() {
+  const cs = _combatState;
+  if (!cs) return;
+  const attacker = G.players.find(p => p.id === cs.attackerId);
+  const defender = G.players.find(p => p.id === cs.defenderId);
+  const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+
+  const aRollDisplay = cs.aRoll > 0
+    ? `<div class="battle-roll-result" style="color:var(--gold2)">${cs.aRoll}</div>`
+    : (cs.phase === 'attacker_roll'
+        ? `<button class="btn btn-danger btn-sm" onclick="combatRoll('attacker')" style="margin-top:6px">🎲 ${LANG==='tr'?'Zar At!':'Roll!'}</button>`
+        : `<div class="battle-roll-result" style="color:var(--stone2)">—</div>`);
+
+  const dRollDisplay = cs.dRoll > 0
+    ? `<div class="battle-roll-result" style="color:var(--gold2)">${cs.dRoll}</div>`
+    : (cs.phase === 'defender_roll'
+        ? `<button class="btn btn-danger btn-sm" onclick="combatRoll('defender')" style="margin-top:6px">🎲 ${LANG==='tr'?'Zar At!':'Roll!'}</button>`
+        : `<div class="battle-roll-result" style="color:var(--stone2)">—</div>`);
+
+  document.getElementById('modal-content').innerHTML = `
+    <div style="text-align:center;margin-bottom:6px">
+      <div style="font-size:28px">⚔️</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:14px;color:var(--red2);letter-spacing:2px">${LANG==='tr'?'SAVAŞ ALANI':'BATTLE ARENA'}</div>
+      <div style="font-family:'Cinzel',serif;font-size:10px;color:var(--parch2);margin-top:4px">
+        ${LANG==='tr'?`Kazanan ⚜${cs.stake} altın alır!`:`Winner takes ⚜${cs.stake} gold!`}
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin:14px 0">
+      <div class="battle-fighter ${cs.phase==='attacker_roll'?'battle-active':''}">
+        <div style="font-size:32px">${attacker.emoji}</div>
+        <div style="font-family:'Cinzel',serif;font-size:10px;color:${attacker.color};margin:4px 0">${attacker.name}</div>
+        <div style="font-size:10px;color:var(--parch2)">⚜${attacker.gold}</div>
+        ${aRollDisplay}
+      </div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:18px;color:var(--gold2)">VS</div>
+      <div class="battle-fighter ${cs.phase==='defender_roll'?'battle-active':''}">
+        <div style="font-size:32px">${defender.emoji}</div>
+        <div style="font-family:'Cinzel',serif;font-size:10px;color:${defender.color};margin:4px 0">${defender.name}</div>
+        <div style="font-size:10px;color:var(--parch2)">⚜${defender.gold}</div>
+        ${dRollDisplay}
+      </div>
+    </div>
+    <div id="battle-status" style="font-family:'Cinzel',serif;font-size:11px;color:var(--parch2);text-align:center;min-height:20px">
+      ${cs.phase==='attacker_roll'
+        ? `${attacker.emoji} ${LANG==='tr'?'zarını at!':'roll your dice!'}`
+        : cs.phase==='defender_roll'
+        ? `${defender.emoji} ${LANG==='tr'?'zarını at!':'roll your dice!'}`
+        : ''}
+    </div>`;
+}
+
+function combatRoll(side) {
+  const cs = _combatState;
+  if (!cs) return;
+  const attacker = G.players.find(p => p.id === cs.attackerId);
+  const defender = G.players.find(p => p.id === cs.defenderId);
+
+  playDiceRoll();
+
+  // Animate dice briefly
+  const el = document.getElementById('modal-content');
+  let rollCount = 0;
+  const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+  const interval = setInterval(() => {
+    rollCount++;
+    const tempRoll = Math.floor(Math.random()*6)+1 + Math.floor(Math.random()*6)+1;
+    const statusEl = document.getElementById('battle-status');
+    if (statusEl) statusEl.textContent = `🎲 ${tempRoll}`;
+    if (rollCount >= 8) {
+      clearInterval(interval);
+      const finalRoll = Math.floor(Math.random()*6)+1 + Math.floor(Math.random()*6)+1;
+      playDiceLand();
+      if (side === 'attacker') {
+        cs.aRoll = finalRoll;
+        cs.phase = 'defender_roll';
+        renderCombatModal();
+        // AI defender auto-rolls
+        if (defender.type === 'ai') setTimeout(() => combatRoll('defender'), 900);
+      } else {
+        cs.dRoll = finalRoll;
+        cs.phase = 'result';
+        renderCombatModal();
+        setTimeout(() => finalizeCombat(), 600);
+      }
+    }
+  }, 80);
+}
+
+function finalizeCombat() {
+  const cs = _combatState;
+  if (!cs) return;
+  const attacker = G.players.find(p => p.id === cs.attackerId);
+  const defender = G.players.find(p => p.id === cs.defenderId);
+  const actualStake = Math.min(cs.stake, attacker.gold, defender.gold);
+  const tie = cs.aRoll === cs.dRoll;
+
+  let winner, loser;
+  if (cs.aRoll >= cs.dRoll) { winner = attacker; loser = defender; }
+  else                        { winner = defender; loser = attacker; }
+
+  if (!tie) {
+    loser.gold  = Math.max(0, loser.gold - actualStake);
+    winner.gold += actualStake;
+  }
+  playBuy();
+  if (actualStake > 50) setTimeout(() => particlesAtSpace(cs.pos, 'gold', 12), 300);
+  if (!tie) setTimeout(() => particlesAtCenter('confetti', 8), 500);
+
+  document.getElementById('modal-content').innerHTML = `
+    <div style="text-align:center">
+      <div style="font-size:48px;margin-bottom:6px">${tie?'🤝':'🏆'}</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:16px;color:${tie?'var(--gold2)':winner.color};letter-spacing:2px;margin-bottom:10px">
+        ${tie?(LANG==='tr'?'BERABERE!':'TIE!'):(LANG==='tr'?`${winner.emoji} KAZANDI!`:`${winner.emoji} WINS!`)}
+      </div>
+      <div style="display:flex;justify-content:center;gap:28px;margin:12px 0">
+        <div style="text-align:center">
+          <div style="font-size:24px">${attacker.emoji}</div>
+          <div style="font-family:'Cinzel',serif;font-size:9px;color:${attacker.color};margin:3px 0">${attacker.name}</div>
+          <div style="font-size:22px;color:${cs.aRoll>cs.dRoll?'#60d060':cs.aRoll<cs.dRoll?'#e06060':'var(--gold2)'};font-weight:bold">🎲${cs.aRoll}</div>
+        </div>
+        <div style="font-family:'Cinzel',serif;font-size:11px;color:var(--stone2);display:flex;align-items:center">VS</div>
+        <div style="text-align:center">
+          <div style="font-size:24px">${defender.emoji}</div>
+          <div style="font-family:'Cinzel',serif;font-size:9px;color:${defender.color};margin:3px 0">${defender.name}</div>
+          <div style="font-size:22px;color:${cs.dRoll>cs.aRoll?'#60d060':cs.dRoll<cs.aRoll?'#e06060':'var(--gold2)'};font-weight:bold">🎲${cs.dRoll}</div>
+        </div>
+      </div>
+      <div style="font-family:'Cinzel',serif;font-size:11px;color:var(--parch2);margin-bottom:14px">
+        ${tie?(LANG==='tr'?'Kimse altın kaybetmedi.':'No gold lost.')
+             :(LANG==='tr'?`${winner.emoji} +⚜${actualStake} altın kazandı!`:`${winner.emoji} gained +⚜${actualStake} gold!`)}
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="endCombat()">✅ ${t('continueBtn')}</button>
+    </div>`;
+
+  addLog(tie
+    ? `⚔️ ${attacker.emoji}(${cs.aRoll}) vs ${defender.emoji}(${cs.dRoll}) — ${LANG==='tr'?'Berabere!':'Tie!'}`
+    : `⚔️ ${winner.emoji}(${tie?cs.aRoll:winner===attacker?cs.aRoll:cs.dRoll}) ${LANG==='tr'?'kazandı':'won'} +⚜${actualStake}`,
+    tie?'':'important');
+
+  checkBankruptcy(loser);
+  renderPlayers();
+  if (onlineActive) pushOnlineState();
+}
+
+function endCombat() {
+  const cs = _combatState;
+  _combatState = null;
+  document.getElementById('modal-overlay').classList.remove('active');
+  if (cs) finishLand(currentPlayer(), cs.isDouble);
+}
+
+function resolveCombat(aId, dId, stake, pos, isDouble) {
+  // Legacy compatibility — just start the new animated battle
+  const a = G.players.find(p=>p.id===aId);
+  const d = G.players.find(p=>p.id===dId);
+  if (a && d) showCombatModal(a, d, pos, isDouble);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// 2. SABOTAJ SİSTEMİ — Eylem fazında düşman mülkünü sabote et
+// ════════════════════════════════════════════════════════════════════
+function showSabotageMenu() {
+  const cp = currentPlayer();
+  // Find all enemy properties with buildings
+  const targets = [];
+  G.players.forEach(p => {
+    if (p.id === cp.id || p.eliminated) return;
+    p.properties.forEach(prop => {
+      if (prop.houses > 0) {
+        const s = G.spaces.find(sp => sp.id === prop.id);
+        if (s) targets.push({ player: p, prop, space: s });
+      }
+    });
+  });
+
+  if (targets.length === 0) {
+    showToast(LANG==='tr'?'Sabote edilecek bina yok!':'No buildings to sabotage!');
+    return;
+  }
+
+  const cost = Math.floor(cp.gold * 0.15); // costs 15% of gold
+  if (cost < 20) { showToast(LANG==='tr'?'Yeterli altın yok!':'Not enough gold!'); return; }
+
+  let html = `<div class="mod-icon">🔥</div>
+    <div class="mod-title" style="color:var(--red2)">${LANG==='tr'?'Sabotaj':'Sabotage'}</div>
+    <div class="mod-text">${LANG==='tr'
+      ? `⚜${cost} altın harcayarak bir birayıkarsın`
+      : `Spend ⚜${cost} gold to destroy a building`}
+    </div>
+    <div style="margin:10px 0;max-height:200px;overflow-y:auto">`;
+
+  targets.forEach(({ player, prop, space }) => {
+    const lvl = prop.houses >= 5 ? '🏰' : '🏠'.repeat(prop.houses);
+    html += `<div class="prop-mini" style="cursor:pointer;padding:6px 8px;margin-bottom:4px;background:rgba(200,50,50,0.1);border:1px solid rgba(200,50,50,0.3);border-radius:3px"
+      onclick="executeSabotage(${player.id},${space.id},${cost})">
+      <div class="dot" style="background:${player.color}"></div>
+      <span style="font-size:10px;color:${player.color}">${player.emoji} ${player.name}</span>
+      <span class="pmn">${space.name}</span>
+      <span class="pml">${lvl}</span>
+      <span style="font-size:9px;color:var(--red2)">🔥 -1</span>
+    </div>`;
+  });
+
+  html += `</div><div class="mod-actions">
+    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('modal-overlay').classList.remove('active')">${t('close')}</button>
+  </div>`;
+
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('active');
+}
+
+function executeSabotage(targetPlayerId, spaceId, cost) {
+  const cp = currentPlayer();
+  const target = G.players.find(p => p.id === targetPlayerId);
+  const prop = target ? target.properties.find(p => p.id === spaceId) : null;
+  const space = G.spaces.find(s => s.id === spaceId);
+  if (!cp || !target || !prop || !space) return;
+
+  cp.gold -= cost;
+  G.parkingPool += cost;
+  prop.houses = Math.max(0, prop.houses - 1);
+  playSfxTrap();
+  setTimeout(() => { flashSpace(spaceId, 'space-bought-flash'); particlesAtSpace(spaceId, 'confetti', 8); }, 200);
+
+  const lvlBefore = prop.houses + 1;
+  const lvlAfter  = prop.houses;
+  addLog(`🔥 ${cp.emoji} ${LANG==='tr'?'sabote etti':'sabotaged'} ${target.emoji} ${space.name}! (${lvlBefore}→${lvlAfter} ${LANG==='tr'?'bina':'buildings'})`, 'danger');
+
+  document.getElementById('modal-overlay').classList.remove('active');
+  renderBoard(); renderPlayers();
+  if (onlineActive) pushOnlineState();
+}
+
+// ════════════════════════════════════════════════════════════════════
+// 3. KUŞATMA SİSTEMİ — Mülkü kuşat, 2 tur kira alınamaz
+// ════════════════════════════════════════════════════════════════════
+function showSiegeMenu() {
+  const cp = currentPlayer();
+  if (!G.sieges) G.sieges = {};
+
+  // Find enemy properties NOT already besieged
+  const targets = [];
+  G.players.forEach(p => {
+    if (p.id === cp.id || p.eliminated) return;
+    p.properties.forEach(prop => {
+      const s = G.spaces.find(sp => sp.id === prop.id);
+      if (s && !G.sieges[prop.id]) targets.push({ player: p, prop, space: s });
+    });
+  });
+
+  if (targets.length === 0) {
+    showToast(LANG==='tr'?'Kuşatılacak mülk yok!':'No properties to besiege!');
+    return;
+  }
+
+  const cost = 100;
+  if (cp.gold < cost) { showToast(LANG==='tr'?'100 altın gerekli!':'Need 100 gold!'); return; }
+
+  let html = `<div class="mod-icon">🏹</div>
+    <div class="mod-title" style="color:var(--gold)">${LANG==='tr'?'Kuşatma':'Siege'}</div>
+    <div class="mod-text">${LANG==='tr'
+      ? `⚜${cost} altın ile bir mülkü 3 tur kuşat — kira alınamaz!`
+      : `Spend ⚜${cost} gold to besiege a property for 3 turns — no rent collected!`}
+    </div>
+    <div style="margin:10px 0;max-height:200px;overflow-y:auto">`;
+
+  targets.forEach(({ player, prop, space }) => {
+    html += `<div class="prop-mini" style="cursor:pointer;padding:6px 8px;margin-bottom:4px;background:rgba(100,80,20,0.15);border:1px solid rgba(201,144,10,0.3);border-radius:3px"
+      onclick="executeSiege(${player.id},${space.id},${cost})">
+      <div class="dot" style="background:${player.color}"></div>
+      <span style="font-size:10px;color:${player.color}">${player.emoji} ${player.name}</span>
+      <span class="pmn">${space.name}</span>
+      <span style="font-size:9px;color:var(--gold)">🏹 3 tur</span>
+    </div>`;
+  });
+
+  html += `</div><div class="mod-actions">
+    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('modal-overlay').classList.remove('active')">${t('close')}</button>
+  </div>`;
+
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('active');
+}
+
+function executeSiege(targetPlayerId, spaceId, cost) {
+  const cp = currentPlayer();
+  const target = G.players.find(p => p.id === targetPlayerId);
+  const space = G.spaces.find(s => s.id === spaceId);
+  if (!cp || !target || !space) return;
+
+  if (!G.sieges) G.sieges = {};
+  cp.gold -= cost;
+  G.parkingPool += cost;
+  G.sieges[spaceId] = { byPlayerId: cp.id, turnsLeft: 3 };
+
+  addLog(`🏹 ${cp.emoji} ${LANG==='tr'?'kuşattı':'besieged'} ${target.emoji} ${space.name}! (3 ${LANG==='tr'?'tur':'turns'})`, 'danger');
+  document.getElementById('modal-overlay').classList.remove('active');
+
+  // Visual: siege indicator on space
+  renderBoard(); renderPlayers();
+  flashSpace(spaceId, 'space-built-flash');
+  if (onlineActive) pushOnlineState();
+}
+
+// Siege tick — called in endTurn
+function tickSieges() {
+  if (!G.sieges) return;
+  Object.keys(G.sieges).forEach(spaceId => {
+    G.sieges[spaceId].turnsLeft--;
+    if (G.sieges[spaceId].turnsLeft <= 0) {
+      const space = G.spaces.find(s => s.id == spaceId);
+      addLog(`🏹 ${LANG==='tr'?'Kuşatma kalktı:':'Siege lifted:'} ${space ? space.name : spaceId}`);
+      delete G.sieges[spaceId];
+    }
+  });
+}
+
+// Check if space is under siege (used in calcRent)
+function isUnderSiege(spaceId) {
+  return G.sieges && G.sieges[spaceId] !== undefined;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// 4. HARAÇ SİSTEMİ — Zayıf oyuncudan haraç iste
+// ════════════════════════════════════════════════════════════════════
+function showTributeMenu() {
+  const cp = currentPlayer();
+  // Can demand tribute from players with less gold
+  const weaklings = G.players.filter(p =>
+    p.id !== cp.id && !p.eliminated && p.gold < cp.gold && p.gold >= 30
+  );
+
+  if (weaklings.length === 0) {
+    showToast(LANG==='tr'?'Haraç istenecek kimse yok!':'No one to demand tribute from!');
+    return;
+  }
+
+  let html = `<div class="mod-icon">👑</div>
+    <div class="mod-title" style="color:var(--gold)">${LANG==='tr'?'Haraç İste':'Demand Tribute'}</div>
+    <div class="mod-text">${LANG==='tr'
+      ? 'Daha zayıf bir oyuncudan haraç iste. Kabul etmek zorunda değiller!'
+      : 'Demand tribute from a weaker player. They can refuse!'}</div>
+    <div style="margin:10px 0">`;
+
+  weaklings.forEach(p => {
+    const maxTribute = Math.floor(p.gold * 0.3);
+    html += `<div class="prop-mini" style="cursor:pointer;padding:8px;margin-bottom:6px;background:rgba(100,60,0,0.2);border:1px solid rgba(201,144,10,0.3);border-radius:3px"
+      onclick="sendTributeRequest(${cp.id},${p.id},${maxTribute})">
+      <span style="font-size:18px">${p.emoji}</span>
+      <span style="font-family:'Cinzel',serif;font-size:11px;color:${p.color};flex:1">${p.name}</span>
+      <span style="font-size:10px;color:var(--gold)">⚜${p.gold} → ⚜${maxTribute} ${LANG==='tr'?'iste':'demand'}</span>
+    </div>`;
+  });
+
+  html += `</div><div class="mod-actions">
+    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('modal-overlay').classList.remove('active')">${t('close')}</button>
+  </div>`;
+
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('active');
+}
+
+function sendTributeRequest(fromId, toId, amount) {
+  const from = G.players.find(p => p.id === fromId);
+  const to   = G.players.find(p => p.id === toId);
+  if (!from || !to) return;
+
+  document.getElementById('modal-overlay').classList.remove('active');
+
+  // Store pending tribute
+  G.tributeRequest = { fromId, toId, amount };
+
+  // Show response modal to the target player
+  // (In online mode, this would be sent to other player — for now show inline)
+  showTributeResponse(from, to, amount);
+}
+
+function showTributeResponse(from, to, amount) {
+  // If it's AI, auto-decide
+  if (to.type === 'ai') {
+    const accept = to.gold < 150 || Math.random() > 0.5; // AI accepts half the time if not desperate
+    setTimeout(() => resolveTribute(!accept), 600);
+    return;
+  }
+
+  document.getElementById('modal-content').innerHTML = `
+    <div class="mod-icon">👑</div>
+    <div class="mod-title" style="color:var(--gold)">${LANG==='tr'?'Haraç Talebi!':'Tribute Demand!'}</div>
+    <div style="text-align:center;margin:14px 0">
+      <div style="font-size:28px;margin-bottom:8px">${from.emoji}</div>
+      <div style="font-family:'Cinzel',serif;font-size:13px;color:${from.color};margin-bottom:6px">${from.name}</div>
+      <div style="font-family:'Cinzel',serif;font-size:11px;color:var(--parch2)">
+        ${LANG==='tr'
+          ? `senden ⚜${amount} altın haraç talep ediyor!`
+          : `demands ⚜${amount} gold in tribute!`}
+      </div>
+    </div>
+    <div class="mod-actions">
+      <button class="btn btn-danger" onclick="resolveTribute(false)">
+        💰 ${LANG==='tr'?'Öde':'Pay'} (⚜${amount})
+      </button>
+      <button class="btn btn-secondary" onclick="resolveTribute(true)">
+        ⚔️ ${LANG==='tr'?'Reddet':'Refuse'}
+      </button>
+    </div>`;
+  document.getElementById('modal-overlay').classList.add('active');
+}
+
+function resolveTribute(refused) {
+  const req = G.tributeRequest;
+  if (!req) { document.getElementById('modal-overlay').classList.remove('active'); return; }
+
+  const from = G.players.find(p => p.id === req.fromId);
+  const to   = G.players.find(p => p.id === req.toId);
+  G.tributeRequest = null;
+
+  document.getElementById('modal-overlay').classList.remove('active');
+
+  if (!refused) {
+    // Pay tribute
+    const actual = Math.min(req.amount, to.gold);
+    to.gold   -= actual;
+    from.gold += actual;
+    playGoldGain();
+    addLog(`👑 ${to.emoji} ${LANG==='tr'?'haraç ödedi':'paid tribute'} ${from.emoji}: ⚜${actual}`, 'danger');
+    particlesAtSpace(from.position, 'gold', 8);
+    checkBankruptcy(to);
+  } else {
+    // Refuse — small penalty (war starts: both lose a little)
+    const penalty = Math.floor(Math.min(from.gold, to.gold) * 0.05);
+    from.gold = Math.max(0, from.gold - penalty);
+    to.gold   = Math.max(0, to.gold   - penalty);
+    playSfxTrap();
+    addLog(`⚔️ ${to.emoji} ${LANG==='tr'?'reddetti! İkisi de':'refused! Both'} -⚜${penalty}`, 'danger');
+  }
+
+  renderPlayers();
+  if (onlineActive) pushOnlineState();
+}
+
+
+// ════════════════════════════════════════════════════════════════════
+// ETKİLEŞİM KARTI OVERLAY & EFFECTS
+// ════════════════════════════════════════════════════════════════════
+
+function openInteractionOverlay(cp, isDouble) {
+  const cards = getInteractionCards();
+  // Pick 1 random interaction card (no choice — fate decides!)
+  const card = cards[Math.floor(Math.random() * cards.length)];
+
+  document.getElementById('modal-content').innerHTML = `
+    <div style="text-align:center;padding:8px">
+      <div style="font-size:48px;margin-bottom:6px">${card.icon}</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#5aaaf4;letter-spacing:2px;margin-bottom:4px">
+        ${LANG==='tr'?'ETKİLEŞİM KARTI':'INTERACTION CARD'}
+      </div>
+      <div style="font-family:'Cinzel',serif;font-size:15px;color:var(--gold2);margin:8px 0">${card.name}</div>
+      <div style="font-size:11px;color:var(--parch2);line-height:1.6;margin-bottom:14px">${card.desc}</div>
+      <button class="btn btn-primary" onclick="applyInteractionCard('${card.type}', ${cp.id}, ${isDouble})">
+        ✅ ${t('continueBtn')}
+      </button>
+    </div>`;
+  document.getElementById('modal-overlay').classList.add('active');
+
+  if (cp.type === 'ai') {
+    setTimeout(() => applyInteractionCard(card.type, cp.id, isDouble), 1200);
+  }
+}
+
+function applyInteractionCard(type, cpId, isDouble) {
+  const cp = G.players.find(p => p.id === cpId);
+  if (!cp) return;
+  document.getElementById('modal-overlay').classList.remove('active');
+
+  switch(type) {
+
+    case 'swap': {
+      // Switch with last-place player (fewest gold)
+      const alive = G.players.filter(p => !p.eliminated && p.id !== cp.id);
+      if (alive.length === 0) break;
+      const last = alive.reduce((a, b) => a.gold < b.gold ? a : b);
+      const tmp = cp.position;
+      cp.position = last.position;
+      last.position = tmp;
+      addLog(`🔄 ${cp.emoji} ↔ ${last.emoji} ${LANG==='tr'?'yer değiştirdi!':'switched places!'}`, 'important');
+      renderBoard();
+      break;
+    }
+
+    case 'battle_all': {
+      // Queue battles with all other players
+      const opponents = G.players.filter(p => !p.eliminated && p.id !== cp.id);
+      if (opponents.length === 0) break;
+      addLog(`⚔️ ${cp.emoji} ${LANG==='tr'?'herkesle savaşıyor!':'battles everyone!'}`, 'important');
+      let delay = 300;
+      opponents.forEach(opp => {
+        setTimeout(() => {
+          if (!cp.eliminated && !opp.eliminated) showCombatModal(cp, opp, cp.position, isDouble);
+        }, delay);
+        delay += 200;
+      });
+      return; // combat modal handles finishLand
+    }
+
+    case 'tribute_all': {
+      let total = 0;
+      G.players.forEach(p => {
+        if (p.id === cp.id || p.eliminated) return;
+        const pay = Math.min(30, p.gold);
+        p.gold -= pay;
+        cp.gold += pay;
+        total += pay;
+      });
+      playGoldGain();
+      particlesAtSpace(cp.position, 'gold', 12);
+      addLog(`👑 ${cp.emoji} ${LANG==='tr'?'herkesten haraç aldı':'collected tribute from all'}: +⚜${total}`, 'success');
+      break;
+    }
+
+    case 'chain_lose': {
+      const alive = G.players.filter(p => !p.eliminated);
+      const myIdx = alive.findIndex(p => p.id === cp.id);
+      let current = cp;
+      let amount = 80;
+      for (let i = 1; i < alive.length; i++) {
+        const next = alive[(myIdx + i) % alive.length];
+        const actual = Math.min(amount, current.gold);
+        current.gold -= actual;
+        next.gold += actual;
+        addLog(`☠️ ${current.emoji} → ${next.emoji}: -⚜${actual}`, 'danger');
+        current = next;
+        amount = Math.floor(amount * 0.6);
+        if (amount < 10) break;
+      }
+      playSfxTrap();
+      break;
+    }
+
+    case 'rob_richest': {
+      const alive = G.players.filter(p => !p.eliminated && p.id !== cp.id);
+      if (alive.length === 0) break;
+      const richest = alive.reduce((a, b) => a.gold > b.gold ? a : b);
+      const steal = Math.floor(richest.gold * 0.20);
+      richest.gold -= steal;
+      cp.gold += steal;
+      playBuy();
+      particlesAtSpace(cp.position, 'gold', 10);
+      addLog(`🦹 ${cp.emoji} ${LANG==='tr'?'soydu':'robbed'} ${richest.emoji}: +⚜${steal}`, 'important');
+      checkBankruptcy(richest);
+      break;
+    }
+
+    case 'judge': {
+      // Everyone rolls 1 die — lowest loses 100
+      const alive = G.players.filter(p => !p.eliminated);
+      const rolls = alive.map(p => ({ player: p, roll: Math.floor(Math.random()*6)+1 }));
+      const minRoll = Math.min(...rolls.map(r => r.roll));
+      const losers = rolls.filter(r => r.roll === minRoll);
+      let logMsg = `⚖️ ${LANG==='tr'?'Kader Yargısı:':'Trial by Fate:'} `;
+      rolls.forEach(r => { logMsg += `${r.player.emoji}🎲${r.roll} `; });
+      addLog(logMsg, 'important');
+      losers.forEach(({ player }) => {
+        const loss = Math.min(100, player.gold);
+        player.gold -= loss;
+        G.parkingPool += loss;
+        addLog(`${player.emoji} -⚜${loss}`, 'danger');
+        checkBankruptcy(player);
+      });
+      playSfxTrap();
+      break;
+    }
+
+    case 'gift_poorest': {
+      const alive = G.players.filter(p => !p.eliminated && p.id !== cp.id);
+      if (alive.length === 0) break;
+      const poorest = alive.reduce((a, b) => a.gold < b.gold ? a : b);
+      const gift = Math.min(100, cp.gold);
+      cp.gold -= gift;
+      poorest.gold += gift;
+      // Mark alliance: poorest owes 2 turns no-rent
+      if (!G.alliances) G.alliances = [];
+      G.alliances.push({ from: poorest.id, to: cp.id, turnsLeft: 2, type: 'no_rent' });
+      addLog(`🎁 ${cp.emoji} → ${poorest.emoji}: ⚜${gift} (${LANG==='tr'?'2 tur kira yok':'2 turns no rent'})`, 'success');
+      break;
+    }
+
+    case 'arena': {
+      const alive = G.players.filter(p => !p.eliminated);
+      const rolls = alive.map(p => ({ player: p, roll: Math.floor(Math.random()*6)+1 + Math.floor(Math.random()*6)+1 }));
+      rolls.sort((a,b) => b.roll - a.roll);
+      const top = rolls[0], bot = rolls[rolls.length-1];
+      const prize = Math.min(200, Math.floor((top.player.gold + bot.player.gold) * 0.2));
+      bot.player.gold = Math.max(0, bot.player.gold - prize);
+      top.player.gold += prize;
+      let logMsg = `🏟️ ${LANG==='tr'?'Arena:':'Arena:'} `;
+      rolls.forEach(r => { logMsg += `${r.player.emoji}🎲${r.roll} `; });
+      addLog(logMsg, 'important');
+      addLog(`🏆 ${top.player.emoji} +⚜${prize}`, 'success');
+      particlesAtCenter('crown', 10);
+      checkBankruptcy(bot.player);
+      break;
+    }
+
+    case 'blacklist': {
+      // Pick highest-gold enemy to blacklist
+      const enemies = G.players.filter(p => !p.eliminated && p.id !== cp.id);
+      if (enemies.length === 0) break;
+      const target = enemies.reduce((a, b) => a.gold > b.gold ? a : b);
+      if (!G.blacklisted) G.blacklisted = {};
+      G.blacklisted[target.id] = 2;
+      addLog(`📜 ${cp.emoji} ${LANG==='tr'?'kara listeye aldı':'blacklisted'} ${target.emoji} (${LANG==='tr'?'2 tur mülk alamaz':'2 turns no buying'})`, 'danger');
+      break;
+    }
+
+    case 'alliance_offer': {
+      // Offer alliance to strongest enemy
+      const enemies = G.players.filter(p => !p.eliminated && p.id !== cp.id && p.type !== 'ai');
+      const target = enemies.length > 0
+        ? enemies.reduce((a,b) => a.gold > b.gold ? a : b)
+        : G.players.filter(p => !p.eliminated && p.id !== cp.id)[0];
+      if (!target) break;
+
+      if (target.type === 'ai') {
+        // AI accepts if they have less gold
+        if (target.gold < cp.gold) {
+          if (!G.alliances) G.alliances = [];
+          G.alliances.push({ from: cp.id, to: target.id, turnsLeft: 3, type: 'no_rent' });
+          G.alliances.push({ from: target.id, to: cp.id, turnsLeft: 3, type: 'no_rent' });
+          addLog(`🤝 ${cp.emoji} + ${target.emoji} ${LANG==='tr'?'ittifak kurdu!':'formed an alliance!'} (3 ${LANG==='tr'?'tur':'turns'})`, 'success');
+        } else {
+          addLog(`${target.emoji} ${LANG==='tr'?'ittifakı reddetti.':'refused the alliance.'}`, '');
+        }
+      } else {
+        // Show modal for human player
+        document.getElementById('modal-content').innerHTML = `
+          <div style="text-align:center">
+            <div style="font-size:36px">🤝</div>
+            <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--gold2);margin:8px 0">
+              ${LANG==='tr'?'İttifak Teklifi!':'Alliance Offer!'}
+            </div>
+            <div style="font-size:11px;color:var(--parch2);margin-bottom:14px">
+              ${cp.emoji} ${cp.name} ${LANG==='tr'?'sana 3 turluk ittifak teklif ediyor!<br>Kabul edersen birbirinize kira ödemezsiniz.':'offers you a 3-turn alliance!<br>Accept and you pay each other no rent.'}
+            </div>
+            <div class="mod-actions">
+              <button class="btn btn-primary" onclick="resolveAllianceOffer(${cp.id},${target.id},true,${isDouble})">✅ ${LANG==='tr'?'Kabul Et':'Accept'}</button>
+              <button class="btn btn-secondary" onclick="resolveAllianceOffer(${cp.id},${target.id},false,${isDouble})">❌ ${LANG==='tr'?'Reddet':'Refuse'}</button>
+            </div>
+          </div>`;
+        document.getElementById('modal-overlay').classList.add('active');
+        return;
+      }
+      break;
+    }
+  }
+
+  renderPlayers(); renderBoard();
+  if (onlineActive) pushOnlineState();
+  finishLand(cp, isDouble);
+}
+
+function resolveAllianceOffer(fromId, toId, accepted, isDouble) {
+  document.getElementById('modal-overlay').classList.remove('active');
+  const from = G.players.find(p => p.id === fromId);
+  const to   = G.players.find(p => p.id === toId);
+  if (accepted) {
+    if (!G.alliances) G.alliances = [];
+    G.alliances.push({ from: fromId, to: toId, turnsLeft: 3, type: 'no_rent' });
+    G.alliances.push({ from: toId, to: fromId, turnsLeft: 3, type: 'no_rent' });
+    addLog(`🤝 ${from.emoji} + ${to.emoji} ${LANG==='tr'?'ittifak kurdu!':'allied!'} (3 ${LANG==='tr'?'tur':'turns'})`, 'success');
+  } else {
+    addLog(`${to.emoji} ${LANG==='tr'?'ittifakı reddetti.':'refused the alliance.'}`, '');
+  }
+  renderPlayers();
+  if (onlineActive) pushOnlineState();
+  finishLand(currentPlayer(), isDouble);
+}
+
+// ── Tick alliances + blacklist in endTurn ─────────────────────────────
+function tickInteractionEffects() {
+  // Tick alliances
+  if (G.alliances) {
+    G.alliances = G.alliances.filter(a => {
+      a.turnsLeft--;
+      if (a.turnsLeft <= 0) {
+        const p = G.players.find(x => x.id === a.from);
+        if (p) addLog(`🤝 ${p.emoji} ${LANG==='tr'?'ittifakı sona erdi.':'alliance expired.'}`, '');
+        return false;
+      }
+      return true;
+    });
+  }
+  // Tick blacklist
+  if (G.blacklisted) {
+    Object.keys(G.blacklisted).forEach(id => {
+      G.blacklisted[id]--;
+      if (G.blacklisted[id] <= 0) {
+        delete G.blacklisted[id];
+        const p = G.players.find(x => x.id == id);
+        if (p) addLog(`📜 ${p.emoji} ${LANG==='tr'?'kara listeden çıktı.':'off the blacklist.'}`, '');
+      }
+    });
+  }
+}
+
+// ── Check alliance (no rent between allied players) ───────────────────
+function isAllied(fromId, toId) {
+  if (!G.alliances) return false;
+  return G.alliances.some(a => a.from === fromId && a.to === toId && a.type === 'no_rent');
+}
+
+// ── Check blacklist (can't buy properties) ────────────────────────────
+function isBlacklisted(playerId) {
+  return G.blacklisted && G.blacklisted[playerId] > 0;
+}
+
 
 // ── Init language on load ──────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
