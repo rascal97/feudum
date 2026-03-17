@@ -361,239 +361,145 @@ select{background:#2d1a08;color:var(--parch);border:1px solid var(--stone);paddi
 
 .corner .sp-icon{font-size:clamp(16px,2.4vmin,26px)!important;}
 .corner .sp-name{font-size:clamp(6px,0.9vmin,10px)!important;font-weight:700!important;}
-@media(max-width:900px){
-  .game-screen { flex-direction: column !important; }
-  .side-panel {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    padding: 6px 8px !important;
-    gap: 6px !important;
-    border-left: none !important;
-    border-top: 2px solid var(--gold) !important;
-    order: 2;
+
+/* ════════════════════════════════════════════════════
+   MOBİL RESPONSIVE
+   ════════════════════════════════════════════════════ */
+
+/* ── Tablet portrait ≤900px ─────────────────────────── */
+@media(max-width:900px) and (orientation:portrait){
+  #game-screen{
+    flex-direction:column !important;
+    height:100dvh;
+    overflow:hidden;
   }
-  .board-scroll { order: 1; flex: 1; min-height: 0; }
-  .players-panel { flex: 1; min-width: 140px; max-height: 120px; overflow-y: auto; }
-  .action-panel { min-width: 140px; flex: 1; }
-  .log-panel { display: none !important; }
-  .properties-panel { display: none !important; }
+  /* Board area: takes most of screen */
+  .board-scroll{
+    flex:1 !important;
+    overflow:auto !important;
+    -webkit-overflow-scrolling:touch !important;
+    touch-action:pan-x pan-y !important;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:4px !important;
+    min-height:0;
+    order:1;
+  }
+  /* Board: square, fits width */
+  .board-wrap{
+    width: calc(100vw - 8px) !important;
+    height: calc(100vw - 8px) !important;
+    min-width: unset !important;
+    flex-shrink:0 !important;
+  }
+  /* Side/left panel: slim strip at bottom */
+  .left-panel{
+    width:100% !important;
+    min-width:unset !important;
+    height:auto !important;
+    max-height:140px !important;
+    flex-direction:row !important;
+    flex-wrap:wrap !important;
+    overflow-y:auto !important;
+    padding:4px 6px !important;
+    border-right:none !important;
+    border-top:2px solid var(--gold) !important;
+    order:2;
+  }
+  .panel-title{display:none !important;}
+  #players-panel{flex:1;min-width:120px;max-height:120px;overflow-y:auto;}
+  #action-buttons{min-width:120px;flex:1;}
+  .log-panel{display:none !important;}
+  .properties-panel{display:none !important;}
+  /* Player cards compact */
+  .player-info-card{padding:3px 5px !important;margin-bottom:2px !important;}
+  .pi-av{font-size:14px !important;}
+  .pi-name{font-size:9px !important;}
+  .pi-gold{font-size:9px !important;}
+  .active-ind{font-size:7px !important;padding:1px 3px !important;}
+  /* Buttons */
+  .btn{font-size:10px !important;padding:6px 10px !important;}
+  .btn-primary{font-size:11px !important;}
 }
 
-/* ── Phone (≤600px) ──────────────────────────────── */
-@media(max-width:600px){
-  /* Board: scale down to fit screen */
-  .board-wrap {
-    width: min(calc(100vh - 200px), calc(100vw - 16px)) !important;
-    height: min(calc(100vh - 200px), calc(100vw - 16px)) !important;
-    grid-template-columns: 5.5fr repeat(14, 4fr) 5.5fr !important;
-    grid-template-rows:    5.5fr repeat(14, 4fr) 5.5fr !important;
-    flex-shrink: 0 !important;
+/* ── Phone portrait ≤480px ──────────────────────────── */
+@media(max-width:480px) and (orientation:portrait){
+  .board-wrap{
+    width: calc(100vw - 4px) !important;
+    height: calc(100vw - 4px) !important;
   }
-  .board-center {
-    grid-column: 2/16 !important;
-    grid-row: 2/16 !important;
-  }
-  /* Space cells */
-  .bspace { padding: 1px !important; }
-  .sp-icon { font-size: 10px !important; }
-  .sp-name { font-size: 5px !important; letter-spacing: 0 !important; }
-  .sp-price { font-size: 5px !important; }
-  .sp-token { font-size: 8px !important; width: 12px !important; height: 12px !important; }
-  .corner .sp-icon { font-size: 14px !important; }
-
-  /* Center logo */
-  .center-crest { font-size: 28px !important; }
-  .center-title { font-size: 11px !important; letter-spacing: 2px !important; }
-  .center-sub { font-size: 6px !important; }
-  .center-arrow { font-size: 7px !important; }
-
-  /* Header */
-  .game-header {
-    padding: 4px 8px !important;
-    flex-wrap: wrap;
-    gap: 4px;
-  }
-  .turn-info { font-size: 10px !important; }
-  .turn-counter { font-size: 8px !important; }
-  .mode-badge { font-size: 7px !important; padding: 2px 5px !important; }
-
-  /* Side panel stacked */
-  .side-panel {
-    flex-direction: column !important;
-    max-height: 220px !important;
-    overflow-y: auto !important;
-    padding: 6px !important;
-  }
-  .players-panel { max-height: 80px !important; }
-  .player-info-card { padding: 4px 6px !important; margin-bottom: 3px !important; }
-  .pi-av { font-size: 16px !important; }
-  .pi-name { font-size: 9px !important; }
-  .pi-gold { font-size: 9px !important; }
-
-  /* Action buttons */
-  .btn { font-size: 10px !important; padding: 7px 12px !important; }
-  .btn-primary { font-size: 11px !important; }
-
-  /* Dice */
-  .dice-panel { gap: 4px !important; }
-  .die { font-size: 20px !important; width: 28px !important; height: 28px !important; }
-  .dice-total { font-size: 8px !important; }
-
-  /* Title screen */
-  .title-logo { font-size: 36px !important; }
-  .title-sub { font-size: 9px !important; }
-  .title-tagline { font-size: 10px !important; }
-  .title-buttons { gap: 8px !important; }
-  .title-footer { font-size: 7px !important; }
-
-  /* Setup screen */
-  .setup-card { padding: 16px !important; margin: 8px !important; }
-  .mode-grid { grid-template-columns: 1fr 1fr !important; gap: 6px !important; }
-  .mode-card { padding: 8px 4px !important; }
-  .mn { font-size: 9px !important; }
-  .mt { font-size: 8px !important; }
-  .md { font-size: 7px !important; }
-
-  /* Online screen */
-  .online-card { padding: 16px !important; margin: 8px !important; width: calc(100vw - 32px) !important; }
-  #lobby-room-code { font-size: 28px !important; letter-spacing: 5px !important; }
-
-  /* Modal */
-  .modal-card { width: calc(100vw - 24px) !important; max-height: 85vh !important; overflow-y: auto !important; }
-
-  /* Fate overlay */
-  #fate-overlay { padding: 10px !important; }
-  .fate-grid { gap: 8px !important; }
-  .fc-wrap { width: 56px !important; height: 80px !important; }
-  .fc-icon { font-size: 18px !important; }
-  .fc-name { font-size: 7px !important; }
-  .fc-eff { font-size: 7px !important; }
-  .fc-desc { font-size: 6px !important; }
-
-  /* Big dice overlay */
-  .big-die { font-size: 52px !important; }
-  .big-result { font-size: 16px !important; }
-  .big-double { font-size: 11px !important; }
-  .big-plbl { font-size: 10px !important; }
-
-  /* Toast */
-  .toast { font-size: 11px !important; padding: 8px 14px !important; }
-
-  /* Leaderboard */
-  #lb-panel { width: calc(100vw - 36px) !important; right: 8px !important; }
-  #lb-btn { bottom: 60px !important; right: 8px !important; }
-
-  /* Sound console */
-  #sound-btn { bottom: 8px !important; right: 8px !important; }
-  #sound-console { right: 8px !important; bottom: 56px !important; width: calc(100vw - 16px) !important; }
-
-  /* Winner screen */
-  .winner-card { padding: 20px 16px !important; margin: 12px !important; }
-
-  /* Rules modal */
-  #modal-overlay .modal-card { width: calc(100vw - 16px) !important; }
+  .sp-icon{font-size:clamp(8px,3vw,13px) !important;}
+  .sp-name{font-size:clamp(4px,1.6vw,7px) !important;}
+  .sp-price{font-size:clamp(4px,1.4vw,6px) !important;}
+  .corner .sp-icon{font-size:clamp(12px,4vw,18px) !important;}
+  .left-panel{max-height:120px !important;}
 }
 
-/* ── Very small phones (≤380px) ─────────────────── */
-@media(max-width:380px){
-  .board-wrap {
-    grid-template-columns: 42px repeat(14, 30px) 42px !important;
-    grid-template-rows:    42px repeat(14, 27px) 42px !important;
+/* ── Landscape phone/tablet ≤900px ──────────────────── */
+@media(max-width:900px) and (orientation:landscape){
+  #game-screen{
+    flex-direction:row !important;
+    height:100dvh;
+    overflow:hidden;
   }
-  .sp-icon { font-size: 8px !important; }
-  .sp-name { font-size: 4px !important; }
-  .corner .sp-icon { font-size: 11px !important; }
-  .center-title { font-size: 9px !important; }
+  /* Left panel: slim column on left */
+  .left-panel{
+    width:130px !important;
+    min-width:110px !important;
+    max-width:130px !important;
+    height:100dvh !important;
+    max-height:100dvh !important;
+    overflow-y:auto !important;
+    flex-direction:column !important;
+    flex-wrap:nowrap !important;
+    border-right:2px solid var(--gold) !important;
+    border-top:none !important;
+    padding:6px !important;
+  }
+  .panel-title{font-size:8px !important;margin-bottom:4px !important;}
+  /* Board: scrollable, takes remaining width */
+  .board-scroll{
+    flex:1 !important;
+    overflow:auto !important;
+    -webkit-overflow-scrolling:touch !important;
+    touch-action:pan-x pan-y !important;
+    display:flex;
+    align-items:flex-start !important;
+    justify-content:flex-start !important;
+    padding:4px !important;
+  }
+  /* Board: fits landscape height */
+  .board-wrap{
+    width:  calc((100dvh - 8px)) !important;
+    height: calc(100dvh - 8px) !important;
+    min-width: calc(100dvh - 8px) !important;
+    flex-shrink:0 !important;
+  }
+  /* Hide side/right panel in landscape — no room */
+  .side-panel{display:none !important;}
+  /* Compact left panel elements */
+  .player-info-card{padding:3px 4px !important;margin-bottom:2px !important;}
+  .pi-av{font-size:12px !important;}
+  .pi-name{font-size:8px !important;}
+  .pi-gold{font-size:8px !important;}
+  .active-ind{font-size:7px !important;}
+  .btn{font-size:9px !important;padding:5px 7px !important;}
+  .log-panel{display:none !important;}
+  .properties-panel{display:none !important;}
+  /* Space cells slightly smaller for landscape height constraint */
+  .sp-icon{font-size:clamp(7px,1.8vh,16px) !important;}
+  .sp-name{font-size:clamp(4px,0.9vh,8px) !important;}
+  .sp-price{font-size:clamp(4px,0.8vh,7px) !important;}
 }
 
-/* ── Touch improvements (all mobile) ────────────── */
+/* ── Touch improvements ─────────────────────────────── */
 @media(hover:none) and (pointer:coarse){
-  .btn { min-height: 42px; }
-  .bspace { cursor: default; }
-  .mode-card { min-height: 70px; }
-  /* Prevent zoom on input focus */
-  input, select, textarea { font-size: 16px !important; }
-  /* Larger tap targets */
-  .lang-btn { min-width: 44px; min-height: 36px; }
+  .btn{min-height:38px !important;}
+  input,select,textarea{font-size:16px !important;}
+  .lang-btn{min-width:40px !important;min-height:34px !important;}
+  .bspace:hover{transform:none !important;}
 }
-
-/* ── Landscape phone ────────────────────────────── */
-
-/* ── Landscape phone/tablet — FIXED ────────────────────────── */
-@media(orientation:landscape) and (max-height:600px){
-  /* Game screen: side panel on left (slim), board takes rest */
-  #game-screen { flex-direction: row !important; overflow:hidden; }
-
-  /* Left panel: very slim, collapsible info */
-  .left-panel {
-    width: 140px !important;
-    min-width: 120px !important;
-    max-width: 140px !important;
-    overflow-y: auto !important;
-    flex-shrink: 0 !important;
-  }
-
-  /* Board scroll: fills remaining space, SCROLLABLE */
-  .board-scroll {
-    flex: 1 !important;
-    overflow: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    touch-action: pan-x pan-y !important;
-    padding: 4px !important;
-    align-items: flex-start !important;
-    justify-content: flex-start !important;
-  }
-
-  /* Board: fixed size that fits landscape height */
-  .board-wrap {
-    width:  calc((100vh - 50px) * 1.0) !important;
-    height: calc(100vh - 50px) !important;
-    flex-shrink: 0 !important;
-    min-width: calc((100vh - 50px) * 1.0) !important;
-  }
-
-  /* Side panel (right) — hide in landscape, save space */
-  .side-panel { display: none !important; }
-
-  /* Action buttons at bottom of left panel */
-  #action-buttons .btn { font-size: 10px !important; padding: 6px 8px !important; }
-
-  /* Header slim */
-  .game-header { padding: 2px 8px !important; }
-  .turn-info { font-size: 9px !important; }
-  .turn-counter { font-size: 8px !important; }
-}
-
-  .side-panel {
-    width: 160px !important;
-    flex-direction: column !important;
-    order: 2;
-    max-height: 100vh !important;
-    overflow-y: auto !important;
-  }
-  .board-scroll { order: 1; }
-  .board-wrap {
-    grid-template-columns: 48px repeat(14, 36px) 48px !important;
-    grid-template-rows:    48px repeat(14, 32px) 48px !important;
-  }
-}
-
-/* ── Combat Systems ───────────────────────────────────── */
-.siege-badge{pointer-events:none;}
-.room-player-row{display:flex;align-items:center;padding:6px 8px;background:rgba(0,0,0,0.2);border-radius:3px;margin-bottom:4px;border:1px solid rgba(201,144,10,0.1);}
-@keyframes combatPulse{0%,100%{box-shadow:0 0 0 0 rgba(200,50,50,0);}50%{box-shadow:0 0 0 6px rgba(200,50,50,0.3);}}
-.combat-active{animation:combatPulse 1s infinite;}
-.st-interaction{background:linear-gradient(135deg,#0a1a2a,#060e18);border-color:#3a8ad4!important;}
-.st-interaction .sp-icon{animation:interactionPulse 2s ease-in-out infinite;}
-@keyframes interactionPulse{0%,100%{transform:scale(1) rotate(0deg);}50%{transform:scale(1.2) rotate(10deg);}}
-.battle-fighter{background:rgba(0,0,0,0.3);border:1px solid rgba(201,144,10,0.2);border-radius:6px;padding:12px 16px;text-align:center;min-width:90px;transition:all 0.3s;}
-.battle-fighter.battle-active{border-color:var(--red2);box-shadow:0 0 12px rgba(200,60,60,0.4);}
-.battle-roll-result{font-family:'Cinzel Decorative',serif;font-size:28px;color:var(--gold2);font-weight:bold;margin-top:6px;}
-.interaction-card{background:linear-gradient(135deg,#0a1e35,#061220);border:2px solid #3a8ad4;border-radius:6px;padding:14px;margin-bottom:8px;cursor:pointer;transition:all 0.2s;}
-.interaction-card:hover{border-color:#5aaaf4;transform:scale(1.02);}
 </style>
 </head>
 <body>
@@ -1910,19 +1816,31 @@ function buildHouse(spaceId){
   renderPlayers();document.getElementById('modal-overlay').classList.remove('active');
 }
 function endTurn(){
-  document.getElementById('modal-overlay').classList.remove('active');G.phase='roll';G.diceRolled=false;tickSieges();tickInteractionEffects();checkGameEnd();
-  if(!document.getElementById('game-screen').classList.contains('active'))return;
-  let next=(G.currentPlayerIdx+1)%G.players.length;let att=0;
-  while(G.players[next].eliminated&&att++<G.players.length)next=(next+1)%G.players.length;
-  if(next<=G.currentPlayerIdx)G.turn++;
-  G.currentPlayerIdx=next;updateTurnInfo();renderPlayers();
+  document.getElementById('modal-overlay').classList.remove('active');
+  G.phase='roll'; G.diceRolled=false;
+  tickSieges(); tickInteractionEffects(); checkGameEnd();
+  if(!document.getElementById('game-screen').classList.contains('active')) return;
+
+  // Calculate next player
+  let next=(G.currentPlayerIdx+1)%G.players.length; let att=0;
+  while(G.players[next].eliminated && att++<G.players.length) next=(next+1)%G.players.length;
+  if(next<=G.currentPlayerIdx) G.turn++;
+  G.currentPlayerIdx=next;
+
+  // Update UI
+  updateTurnInfo(); renderPlayers();
   const cp=currentPlayer();
-  if(cp&&cp.type==='ai'&&!cp.eliminated){G.phase='ai';updateActionButtons();setTimeout(aiTurn,800);}
-  else if(onlineActive && !isMyOnlineTurn()){G.phase='waiting';updateActionButtons();}
-  else{updateActionButtons();}
-  // Push AFTER all state (phase, currentPlayerIdx) is finalized
+  if(cp && cp.type==='ai' && !cp.eliminated){
+    G.phase='ai'; updateActionButtons(); setTimeout(aiTurn,800);
+  } else if(onlineActive && !isMyOnlineTurn()){
+    G.phase='waiting'; updateActionButtons();
+  } else {
+    updateActionButtons();
+  }
+
+  // ALWAYS push in online mode — no guard, state is finalized
   if(onlineActive) pushOnlineState();
-  checkMusicContext();updateOnlineTurnBanner();
+  checkMusicContext(); updateOnlineTurnBanner();
 }
 function checkBankruptcy(cp){if(cp.gold<=0&&!cp.eliminated&&cp.properties.length===0)eliminatePlayer(cp);}
 function eliminatePlayer(cp){playEliminate();cp.eliminated=true;cp.gold=0;cp.properties=[];addLog(t('logElim', cp.emoji, cp.name),'danger');renderBoard();renderPlayers();}
@@ -2323,8 +2241,8 @@ function startOnlineGame() {
 // ── Push state (host → server → guests) ─────────────────────────────────
 function pushOnlineState() {
   if (!onlineActive || !socket) return;
-  // Host always pushes; guest only pushes when it's their turn
-  if (!onlineIsHost && !isMyOnlineTurn()) return;
+  // Anyone who just took an action pushes state
+  // No turn guard — endTurn changes currentPlayerIdx BEFORE calling push
   const state = {
     players: G.players.map(p => ({
       ...p,
@@ -2343,12 +2261,15 @@ function pushOnlineState() {
     alliances:     G.alliances || [],
     blacklisted:   G.blacklisted || {},
   };
+  socket._lastPushTs = Date.now();
   socket.emit('push_state', state);
 }
 
 // ── Apply remote state (guests) ───────────────────────────────────────────
 function applyRemoteState(state) {
   if (!state) return;
+  // Echo protection: skip if this came back within 50ms of our own push
+  if (socket && socket._lastPushTs && Date.now() - socket._lastPushTs < 50) return;
   const wasMyTurn = isMyOnlineTurn();
   G.players           = state.players;
   G.currentPlayerIdx  = state.currentPlayerIdx;
