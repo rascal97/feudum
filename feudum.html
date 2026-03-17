@@ -2286,6 +2286,8 @@ function pushOnlineState() {
   if (!onlineActive || !socket) return;
   // Anyone who just took an action pushes state
   // No turn guard — endTurn changes currentPlayerIdx BEFORE calling push
+  if (G.stateSeq === undefined) G.stateSeq = 0;
+  G.stateSeq++;
   const state = {
     players: G.players.map(p => ({
       ...p,
@@ -2293,6 +2295,7 @@ function pushOnlineState() {
     })),
     currentPlayerIdx: G.currentPlayerIdx,
     turn:          G.turn,
+    stateSeq:      G.stateSeq,
     // Never push 'waiting' — it's local UI only. Push 'roll' instead.
     phase:         (G.phase === 'waiting') ? 'roll' : G.phase,
     parkingPool:   G.parkingPool,
@@ -2311,6 +2314,12 @@ function pushOnlineState() {
 // ── Apply remote state (guests) ───────────────────────────────────────────
 function applyRemoteState(state) {
   if (!state) return;
+  // Discard stale / out-of-order state broadcasts
+  if (state.stateSeq !== undefined) {
+    if (G.lastAppliedSeq === undefined) G.lastAppliedSeq = 0;
+    if (state.stateSeq <= G.lastAppliedSeq) return;
+    G.lastAppliedSeq = state.stateSeq;
+  }
   const wasMyTurn = isMyOnlineTurn();
   G.players           = state.players;
   G.currentPlayerIdx  = state.currentPlayerIdx;
