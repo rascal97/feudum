@@ -734,6 +734,17 @@ let LANG = localStorage.getItem('feudum_lang') || 'tr';
 
 const STRINGS = {
   tr: {
+  
+
+// ═════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════
+// i18n LANGUAGE SYSTEM
+// ═══════════════════════════════════════════════════════
+let LANG = localStorage.getItem('feudum_lang') || 'tr';
+
+const STRINGS = {
+  tr: {
     // Title
     subtitle: '⚔ Orta Çağ Taht Savaşı ⚔',
     tagline: 'Köyleri fethederek, kaleleri kurarak hükümdarlığını inşa et.',
@@ -1522,7 +1533,13 @@ function updateActionButtons(){
     if(hasEnemyProps&&cp.gold>=100)h+=`<button class="btn btn-sm" style="margin-top:5px;background:linear-gradient(135deg,#3a3010,#252008);border-color:#c0a030;color:#ffd080" onclick="showSiegeMenu()">🏹 ${LANG==='tr'?'Kuşat':'Besiege'}</button>`;
     if(hasWeaker)h+=`<button class="btn btn-sm" style="margin-top:5px;background:linear-gradient(135deg,#3a2800,#281c00);border-color:var(--gold);color:var(--gold2)" onclick="showTributeMenu()">👑 ${LANG==='tr'?'Haraç İste':'Demand Tribute'}</button>`;
     btns.innerHTML=h;
-  } else {btns.innerHTML='<div style="font-size:11px;color:var(--stone2);text-align:center;padding:8px;">🤖 ...</div>';}
+  } else if(G.phase==='waiting'){
+    const waitCp=currentPlayer();
+    btns.innerHTML='<div style="font-size:11px;color:var(--stone2);text-align:center;padding:10px;">⏳ '+
+      (waitCp?waitCp.name:'...')+' '+(LANG==='tr'?'oynuyor...':'is playing...')+'</div>';
+  } else {
+    btns.innerHTML='<div style="font-size:11px;color:var(--stone2);text-align:center;padding:8px;">🤖 ...</div>';
+  }
 }
 
 // ── GAME LOGIC ──
@@ -1736,7 +1753,7 @@ function applyTrap(card,isDouble){
 
 function handleProperty(cp,space,pos,isDouble){
   const owner=G.players.find(p=>p.properties.some(pr=>pr.id===pos));
-  if(!owner){if(cp.type==='human')showBuyModal(cp,space,isDouble);else aiDecideBuy(cp,space,isDouble);}
+  if(!owner){if(cp.type==='human'||(cp.type==='online'&&isMyOnlineTurn()))showBuyModal(cp,space,isDouble);else aiDecideBuy(cp,space,isDouble);}
   else if(owner.id===cp.id){addLog(t('logMyProp', cp.emoji, space.name));finishLand(cp,isDouble);}
   else{
     const prop=owner.properties.find(pr=>pr.id===pos);let rent=calcRent(space,owner,prop);
@@ -2010,13 +2027,19 @@ function connectSocket() {
       };
     });
 
-    // Find my index using socketId (most reliable) or fallback to name
+    // Find my slot by socketId (reliable) or name (fallback)
     const meBySocket = players.find(p => p.socketId === socket.id);
     const meByName   = players.find(p => p.name === myNick);
     const me = meBySocket || meByName;
-    onlineMyIdx = me ? me.idx : (onlineIsHost ? 0 : -1);
-    // Always set from server data — overrides any previous value
-    console.log('onlineMyIdx set to:', onlineMyIdx, 'socket:', socket.id, 'me:', me);
+    if (me) {
+      onlineMyIdx = me.idx;
+    } else if (onlineIsHost) {
+      onlineMyIdx = 0;
+    } else {
+      onlineMyIdx = -1;
+      console.warn('Could not find my player slot! players:', players, 'myNick:', myNick, 'socket:', socket.id);
+    }
+    console.log('My slot:', onlineMyIdx, 'isHost:', onlineIsHost, 'socketId:', socket.id);
 
     showScreen('game-screen');
     document.getElementById('mode-badge').textContent = MODE_CFG[mode].label;
@@ -2298,6 +2321,8 @@ function applyRemoteState(state) {
   G.isyanTurns        = state.isyanTurns;
   G.immuneToTrap      = state.immuneToTrap;
   G.diceRolled        = state.diceRolled;
+  // Never apply 'waiting' phase — it's local UI only
+  if (G.phase === 'waiting') G.phase = 'roll';
   if (state.sieges !== undefined)          G.sieges = state.sieges;
   if (state.alliances !== undefined)       G.alliances = state.alliances;
   if (state.blacklisted !== undefined)     G.blacklisted = state.blacklisted;
@@ -3550,14 +3575,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   initSetupPlayers();
 });
-</script>
-
-<!-- SOUND CONSOLE -->
-<button id="sound-btn" onclick="toggleSoundConsole()" data-i18n-title="soundSettings" title="Ses Ayarları">🔊</button>
-<div id="sound-console">
-  <div class="sc-title" data-i18n="soundSettings">🎵 Ses Ayarları</div>
-  <div class="sc-row">
-    <div class="sc-label" data-i18n="music">🎵 MÜZİK</div>
+ class="sc-label" data-i18n="music">🎵 MÜZİK</div>
     <input type="range" class="sc-slider" id="vol-music" min="0" max="100" value="40" oninput="setVolume('music',this.value)">
     <span id="vol-music-val" style="font-family:'Cinzel',serif;font-size:9px;color:var(--gold2);width:24px">40</span>
   </div>
