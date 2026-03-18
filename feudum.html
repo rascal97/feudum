@@ -2293,6 +2293,7 @@ function pushOnlineState() {
     })),
     currentPlayerIdx: G.currentPlayerIdx,
     turn:          G.turn,
+    stateTime:     Date.now(),
     // Never push 'waiting' — it's local UI only. Push 'roll' instead.
     phase:         (G.phase === 'waiting') ? 'roll' : G.phase,
     parkingPool:   G.parkingPool,
@@ -2311,6 +2312,11 @@ function pushOnlineState() {
 // ── Apply remote state (guests) ───────────────────────────────────────────
 function applyRemoteState(state) {
   if (!state) return;
+  if (state.stateTime !== undefined) {
+    if (G.lastAppliedTime === undefined) G.lastAppliedTime = 0;
+    if (state.stateTime <= G.lastAppliedTime) return;
+    G.lastAppliedTime = state.stateTime;
+  }
   const wasMyTurn = isMyOnlineTurn();
   G.players           = state.players;
   G.currentPlayerIdx  = state.currentPlayerIdx;
