@@ -5,7 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FEUDUM – Orta Çağ Taht Savaşı</title>
 <!-- Socket.io client -->
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+// Socket.io optional loader - oyun socket.io olmadan da çalışır
+window._socketIOLoaded = false;
+</script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js" 
+  onload="window._socketIOLoaded=true" 
+  onerror="console.warn('Socket.io yüklenemedi, online mod devre dışı')" 
+  async></script>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
 <style>
 :root{--parch:#f4e8c1;--parch2:#ede0b0;--ink:#2c1a0e;--gold:#c9900a;--gold2:#f0c040;--red:#8b1a1a;--red2:#c0392b;--green2:#4a8a2a;--blue2:#2e6da4;--purple2:#7b3fa0;--stone:#6b5a4a;--stone2:#9b8a7a;--glow:rgba(201,144,10,0.4);}
@@ -1951,6 +1958,10 @@ const RANDOM_NICKS = ['KaraŞövalye','DemirKalkan','YıldırımOkçu','Ejderha'
 const RAILWAY_URL = 'https://feudum-server-production.up.railway.app';
 
 function connectSocket() {
+  if (typeof io === 'undefined') {
+    addLog('⚠️ Online mod bu ortamda kullanılamıyor (Socket.io yüklenemedi).', 'warn');
+    return;
+  }
   if (socket && socket.connected) return;
   let serverURL;
   if (RAILWAY_URL) {
