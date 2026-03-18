@@ -1457,6 +1457,7 @@ function getSpaceClass(s){
 
 // ── RENDER BOARD ──
 function renderBoard(){
+  if(!G.spaces || G.spaces.length===0){G.spaces=createBoard();buildBoardDOM();}
   G.spaces.forEach((space,idx)=>{
     const el=document.getElementById('bspace-'+idx);if(!el)return;
     const here=G.players.filter(p=>p.position===idx&&!p.eliminated);
@@ -2399,8 +2400,9 @@ function guestResolveTribute(accepted) {
 function applyRemoteState(state) {
   if (!state) return;
   console.log('[FEUDUM] applyRemoteState çağrıldı, turn:', state.turn, 'currentIdx:', state.currentPlayerIdx);
-  // Guest tarafında board henüz oluşturulmamışsa oluştur
+  // Board her zaman hazır olsun
   if (!G.spaces || G.spaces.length === 0) {
+    console.log('[FEUDUM] G.spaces yok, createBoard çağrılıyor...');
     G.spaces = createBoard();
     buildBoardDOM();
   }
