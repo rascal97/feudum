@@ -3564,35 +3564,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   initSetupPlayers();
 });
- class="sc-label" data-i18n="music">🎵 MÜZİK</div>
-    <input type="range" class="sc-slider" id="vol-music" min="0" max="100" value="40" oninput="setVolume('music',this.value)">
-    <span id="vol-music-val" style="font-family:'Cinzel',serif;font-size:9px;color:var(--gold2);width:24px">40</span>
-  </div>
-  <div class="sc-row">
-    <div class="sc-label" data-i18n="diceSnd">🎲 ZAR SESİ</div>
-    <input type="range" class="sc-slider" id="vol-dice" min="0" max="100" value="70" oninput="setVolume('dice',this.value)">
-    <span id="vol-dice-val" style="font-family:'Cinzel',serif;font-size:9px;color:var(--gold2);width:24px">70</span>
-  </div>
-  <div class="sc-row">
-    <div class="sc-label" data-i18n="effects">🎯 EFEKTLER</div>
-    <input type="range" class="sc-slider" id="vol-sfx" min="0" max="100" value="80" oninput="setVolume('sfx',this.value)">
-    <span id="vol-sfx-val" style="font-family:'Cinzel',serif;font-size:9px;color:var(--gold2);width:24px">80</span>
-  </div>
-  <div class="sc-divider"></div>
-  <label class="sc-toggle">
-    <input type="checkbox" id="toggle-music" checked onchange="toggleMusic()">
-    <div class="tog"></div>
-    <span class="sc-toggle-label" data-i18n="bgMusic">Arka Plan Müziği</span>
-  </label>
-  <label class="sc-toggle" style="margin-top:5px">
-    <input type="checkbox" id="toggle-sfx" checked onchange="toggleSfx()">
-    <div class="tog"></div>
-    <span class="sc-toggle-label" data-i18n="gameSounds">Oyun Sesleri</span>
-  </label>
-  <div class="sc-divider"></div>
-  <div class="sc-now-playing" id="now-playing">♪ ORTA ÇAĞ KATEDRALI ♪</div>
-</div>
-
+</script>
 
 <!-- LEADERBOARD BUTTON -->
 <button id="lb-btn" onclick="toggleLeaderboard()" title="🏆 Skor Tablosu">🏆</button>
