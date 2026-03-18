@@ -1458,6 +1458,7 @@ function getSpaceClass(s){
 // ── RENDER BOARD ──
 function renderBoard(){
   if(!G.spaces || G.spaces.length===0){G.spaces=createBoard();buildBoardDOM();}
+  if(!G.players || G.players.length===0) return;
   G.spaces.forEach((space,idx)=>{
     const el=document.getElementById('bspace-'+idx);if(!el)return;
     const here=G.players.filter(p=>p.position===idx&&!p.eliminated);
@@ -2250,6 +2251,11 @@ function startOnlineGameFromFirebase(room) {
     };
   });
 
+  // fbRoomRef yoksa kur (guest için)
+  if (!fbRoomRef) {
+    fbRoomRef = db.ref('rooms/' + onlineRoom);
+  }
+
   showScreen('game-screen');
   document.getElementById('mode-badge').textContent = MODE_CFG[G.mode].label;
   buildBoardDOM();
@@ -2258,26 +2264,22 @@ function startOnlineGameFromFirebase(room) {
   initAudio();
   updateOnlineTurnBanner();
 
-  // fbRoomRef yoksa kur (guest için)
-  if (!fbRoomRef) {
-    fbRoomRef = db.ref('rooms/' + onlineRoom);
-  }
-
   console.log('[FEUDUM] startOnlineGameFromFirebase, onlineIsHost:', onlineIsHost, 'onlineMyIdx:', onlineMyIdx, 'fbRoomRef:', !!fbRoomRef);
-  // State dinlemeye başla
-  listenGameState();
   
   // Host ilk state'i push etsin
   if (onlineIsHost) {
-    setTimeout(() => pushOnlineState(), 500);
+    setTimeout(() => pushOnlineState(), 300);
   }
+  
+  // En son state dinlemeye başla (board DOM hazır olduktan sonra)
+  setTimeout(() => listenGameState(), 100);
 }
 
 // ── Oyun state'ini Firebase'e gönder ────────────────────────────────────
 function pushOnlineState() {
   if (!onlineActive || !fbRoomRef) return;
   if (!onlineIsHost) return; // Sadece host state yazar, guest guestAction ile iletişim kurar
-  console.log('[FEUDUM] pushOnlineState çağrıldı, turn:', G.turn, 'currentIdx:', G.currentPlayerIdx);
+  console.log('[FEUDUM] pushOnlineState çağrıldı, turn:', G.turn, 'currentIdx:', G.currentPlayerIdx, 'p0pos:', G.players[0]?.position, 'p1pos:', G.players[1]?.position, 'props:', G.players.map(p=>p.properties.length));
   const state = {
     players: G.players.map(p => ({...p, properties: p.properties.map(pr => ({...pr}))})),
     currentPlayerIdx: G.currentPlayerIdx,
@@ -2295,6 +2297,7 @@ function pushOnlineState() {
     updatedAt:     Date.now(),
     lastDice:      G.lastDice || null
   };
+  G.lastDice = null; // Bir kez gönder, sonra temizle
   fbRoomRef.child('state').set(state);
 }
 
@@ -2399,7 +2402,7 @@ function guestResolveTribute(accepted) {
 // ── Remote state uygula ──────────────────────────────────────────────────
 function applyRemoteState(state) {
   if (!state) return;
-  console.log('[FEUDUM] applyRemoteState çağrıldı, turn:', state.turn, 'currentIdx:', state.currentPlayerIdx);
+  console.log('[FEUDUM] applyRemoteState çağrıldı, turn:', state.turn, 'currentIdx:', state.currentPlayerIdx, 'p0pos:', state.players?.[0]?.position, 'p1pos:', state.players?.[1]?.position);
   // Board her zaman hazır olsun
   if (!G.spaces || G.spaces.length === 0) {
     console.log('[FEUDUM] G.spaces yok, createBoard çağrılıyor...');
@@ -2421,9 +2424,9 @@ function applyRemoteState(state) {
   if (state.alliances !== undefined)      G.alliances = state.alliances;
   if (state.blacklisted !== undefined)    G.blacklisted = state.blacklisted;
   if (state.tributeRequest !== undefined) G.tributeRequest = state.tributeRequest;
-  // Zar animasyonunu guest ekranında göster
+  // Zar animasyonunu sadece yeni zar atıldığında göster
   if (state.lastDice && !onlineIsHost) {
-    const cp2 = currentPlayer();
+    const cp2 = G.players[state.currentPlayerIdx];
     if (cp2) showDiceAnimation(state.lastDice.d1, state.lastDice.d2, cp2);
   }
   renderBoard(); renderPlayers(); updateTurnInfo(); updateActionButtons();
